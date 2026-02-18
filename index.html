@@ -1165,20 +1165,21 @@
                 <div>
                     <h3 style="margin-bottom: 20px; color: #1a1a2e;">Pošlite nám správu</h3>
                     <form style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);">
-                        <div class="form-group">
-                            <label for="name">Meno a priezvisko</label>
-                            <input type="text" id="name" placeholder="Vaše meno" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" id="email" placeholder="Váš email" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="message">Správa</label>
-                            <textarea id="message" rows="5" placeholder="Vaša správa" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary" style="width: 100%;">Poslať správu</button>
-                    </form>
+                            <form action="mailto:strananekm@gmail.com" method="post" enctype="text/plain" style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);">
+                                <div class="form-group">
+                                    <label for="name">Meno a priezvisko</label>
+                                    <input type="text" id="name" name="Meno" placeholder="Vaše meno" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Email</label>
+                                    <input type="email" id="email" name="Email" placeholder="Váš email" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="message">Správa</label>
+                                    <textarea id="message" name="Správa" rows="5" placeholder="Vaša správa" required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="width: 100%;">Poslať správu</button>
+                            </form>
                 </div>
             </div>
         </section>
