@@ -754,10 +754,6 @@
             <div id="parentChildrenArea" style="display: none;">
                 <div class="parent-children">
                     <h3><i class="fas fa-child"></i> Moje deti</h3>
-                    <div class="add-child">
-                        <input type="text" id="childName" placeholder="Zadajte meno dieťaťa...">
-                        <button onclick="addChild()"><i class="fas fa-plus"></i> Pridať</button>
-                    </div>
                     <div id="childrenList"></div>
                 </div>
             </div>
@@ -777,6 +773,14 @@
             'robert_sabo': { username: 'robert_sabo', fullName: 'Róbert Sabo', category: 'adults_pro', position: 'Obranca', shirtNumber: 3, age: 27, height: 182, weight: 78, dateOfBirth: '1998-06-22', joinedClub: '2016-07-01' },
             'stefan_polak': { username: 'stefan_polak', fullName: 'Štefan Polák', category: 'adults_young', position: 'Stredopoliar', shirtNumber: 5, age: 23, height: 175, weight: 70, dateOfBirth: '2002-09-14', joinedClub: '2021-09-01' },
             'tomas_kamenicky': { username: 'tomas_kamenicky', fullName: 'Tomáš Kamenický', category: 'pripravky', position: 'Útočník', shirtNumber: 10, age: 15, height: 150, weight: 40, dateOfBirth: '2010-02-28', joinedClub: '2024-02-01' }
+        };
+
+        // Parent-child relationships from database
+        const USERS = {
+            'anna_adamcikova': { username: 'anna_adamcikova', role: 'parent', children: ['jozef_adamcik', 'marko_adamcik'] },
+            'milan_kuba': { username: 'milan_kuba', role: 'parent', children: ['lukas_kuba'] },
+            'eva_horvathova': { username: 'eva_horvathova', role: 'parent', children: ['jakub_horvath'] },
+            'julius_kamenicky': { username: 'julius_kamenicky', role: 'parent', children: ['tomas_kamenicky'] }
         };
 
         let currentUser = { username: '', role: '', isLoggedIn: false };
@@ -810,8 +814,18 @@
             const saved = localStorage.getItem('trainings');
             if (saved) trainings = JSON.parse(saved);
 
-            const savedChildren = localStorage.getItem('parentChildren_' + currentUser.username);
-            if (savedChildren) parentChildren = JSON.parse(savedChildren);
+            // Load parent's children from USERS data instead of localStorage
+            if (currentUser.role === 'parent') {
+                parentChildren = {}; // Reset to ensure clean state
+                if (USERS[currentUser.username]) {
+                    const parentUser = USERS[currentUser.username];
+                    if (parentUser.children) {
+                        parentUser.children.forEach(childUsername => {
+                            parentChildren[childUsername] = true;
+                        });
+                    }
+                }
+            }
 
             console.log('User loaded:', currentUser, 'Trainings:', trainings);
             updateUI();
@@ -1162,46 +1176,23 @@
             }
         }
 
-        function addChild() {
-            const name = document.getElementById('childName').value.trim();
-            if (!name) {
-                alert('Zadajte meno!');
-                return;
-            }
-
-            if (!parentChildren[name]) {
-                parentChildren[name] = true;
-                localStorage.setItem('parentChildren_' + currentUser.username, JSON.stringify(parentChildren));
-                document.getElementById('childName').value = '';
-                updateChildrenList();
-                refreshPlayerTrainings();
-            }
-        }
-
-        function removeChild(name) {
-            if (confirm('Odstrániť?')) {
-                delete parentChildren[name];
-                localStorage.setItem('parentChildren_' + currentUser.username, JSON.stringify(parentChildren));
-                updateChildrenList();
-                refreshPlayerTrainings();
-            }
-        }
-
         function updateChildrenList() {
             const list = document.getElementById('childrenList');
             const children = Object.keys(parentChildren);
 
             if (children.length === 0) {
-                list.innerHTML = '<p style="color:rgba(255,255,255,0.5);text-align:center;">Žiadne deti</p>';
+                list.innerHTML = '<p style="color:rgba(255,255,255,0.5);text-align:center;">Nemáte pridelené žiadne deti.</p>';
                 return;
             }
 
             let html = '';
-            children.forEach(child => {
+            children.forEach(childUsername => {
+                // Get child's full name from PLAYERS if available
+                const childName = PLAYERS[childUsername] ? PLAYERS[childUsername].fullName : childUsername;
+                
                 html += `
                     <div class="child-item">
-                        <span><i class="fas fa-child"></i> ${child}</span>
-                        <button class="btn-remove" onclick="removeChild('${child}')">Odstrániť</button>
+                        <span><i class="fas fa-child"></i> ${childName}</span>
                     </div>
                 `;
             });
