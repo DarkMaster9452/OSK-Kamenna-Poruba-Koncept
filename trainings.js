@@ -67,17 +67,11 @@ function initializeTrainingView() {
                     </form>
                 </div>
 
-                <!-- Parent Children Management -->
+                <!-- Parent Children Management (Read-Only) -->
                 <div id="parentChildrenArea" style="display: none; margin-bottom: 40px; background: rgba(255, 255, 255, 0.05); padding: 30px; border-radius: 10px; border: 2px solid #ffd700;">
                     <h3 style="color: #ffd700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
                         <i class="fas fa-child"></i> Moje deti
                     </h3>
-                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                        <input type="text" id="childName" placeholder="Zadajte meno dieťaťa..." style="flex: 1; padding: 12px; border: 1px solid #ffd700; border-radius: 5px; background: rgba(255, 255, 255, 0.1); color: white;">
-                        <button type="button" onclick="addChild()" style="padding: 12px 30px; background: #ffd700; color: #003399; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
-                            <i class="fas fa-plus"></i> Pridať
-                        </button>
-                    </div>
                     <div id="childrenList"></div>
                 </div>
 
@@ -113,9 +107,15 @@ function loadTrainingData() {
         playerAttendance = JSON.parse(savedAttendance);
     }
 
-    const savedChildren = localStorage.getItem('parentChildren_' + currentUser.username);
-    if (savedChildren) {
-        parentChildren = JSON.parse(savedChildren);
+    // Load parent's children from database.js instead of localStorage
+    if (currentUser && currentUser.role === 'parent' && typeof USERS !== 'undefined') {
+        const parentUser = USERS[currentUser.username];
+        if (parentUser && parentUser.children) {
+            parentChildren = {};
+            parentUser.children.forEach(childUsername => {
+                parentChildren[childUsername] = true;
+            });
+        }
     }
 }
 
@@ -197,7 +197,7 @@ function refreshPlayerTrainings() {
     }
     
     if (peopleToDisplay.length === 0 && currentUser.role === 'parent') {
-        container.innerHTML = '<div style="text-align: center; color: #ffd700; padding: 30px;"><p>Prosím pridajte svoje deti, aby ste ich mohli prihlásiť na tréningy.</p></div>';
+        container.innerHTML = '<div style="text-align: center; color: #ffd700; padding: 30px;"><p>Nemáte pridelené žiadne deti.</p></div>';
         return;
     }
 
@@ -278,73 +278,30 @@ function refreshPlayerTrainings() {
     container.innerHTML = html;
 }
 
-// Add child for parent
-function addChild() {
-    console.log('addChild called, currentUser:', currentUser);
-    
-    if (!currentUser || !currentUser.username) {
-        alert('Musíte byť prihlásený!');
-        return;
-    }
-    
-    const childNameInput = document.getElementById('childName');
-    const childName = childNameInput.value.trim();
-    
-    if (!childName) {
-        alert('Prosím zadajte meno dieťaťa!');
-        return;
-    }
-    
-    if (!parentChildren[childName]) {
-        parentChildren[childName] = true;
-        localStorage.setItem('parentChildren_' + currentUser.username, JSON.stringify(parentChildren));
-        childNameInput.value = '';
-        updateChildrenList();
-        refreshPlayerTrainings();
-    } else {
-        alert('Toto dieťa je už pridané!');
-    }
-}
-
-// Remove child
-function removeChild(childName) {
-    if (confirm('Ste si istý, že chcete odstrániť ' + childName + '?')) {
-        delete parentChildren[childName];
-        localStorage.setItem('parentChildren_' + currentUser.username, JSON.stringify(parentChildren));
-        updateChildrenList();
-        refreshPlayerTrainings();
-    }
-}
-
-// Update children list display
+// Update children list display (read-only)
 function updateChildrenList() {
     const childrenList = document.getElementById('childrenList');
     const children = Object.keys(parentChildren);
     
     if (children.length === 0) {
-        childrenList.innerHTML = '<p style="color: rgba(255, 255, 255, 0.6); text-align: center;">Zatiaľ ste nepridali žiadne dieťa.</p>';
+        childrenList.innerHTML = '<p style="color: rgba(255, 255, 255, 0.6); text-align: center;">Nemáte pridelené žiadne deti.</p>';
         return;
     }
     
     let html = '';
-    children.forEach((childName, index) => {
+    children.forEach((childUsername, index) => {
+        // Get child's full name from PLAYERS if available
+        const childName = (typeof PLAYERS !== 'undefined' && PLAYERS[childUsername]) 
+            ? PLAYERS[childUsername].fullName 
+            : childUsername;
+        
         html += `
             <div style="background: rgba(255, 255, 255, 0.05); padding: 12px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
                 <span style="color: #ffd700; font-weight: bold;">${index + 1}. ${childName}</span>
-                <button type="button" class="remove-child-btn" data-child="${childName}" style="padding: 6px 12px; background: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 12px;">
-                    <i class="fas fa-trash"></i> Odstrániť
-                </button>
             </div>
         `;
     });
     childrenList.innerHTML = html;
-    
-    // Attach click handlers to delete buttons
-    document.querySelectorAll('.remove-child-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            removeChild(this.getAttribute('data-child'));
-        });
-    });
 }
 
 // Mark attendance for player or child
