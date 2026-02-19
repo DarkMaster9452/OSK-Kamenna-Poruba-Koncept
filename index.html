@@ -1539,15 +1539,15 @@
             console.log('Saved to localStorage:', username, userRole);
             
             // Load parent's children from database.js if parent
-            if (userRole === 'parent' && typeof USERS !== 'undefined') {
-                const parentUser = USERS[username];
-                if (parentUser && parentUser.children) {
-                    parentChildren = {};
-                    parentUser.children.forEach(childUsername => {
-                        parentChildren[childUsername] = true;
-                    });
-                } else {
-                    parentChildren = {};
+            if (userRole === 'parent') {
+                parentChildren = {}; // Reset to ensure clean state
+                if (typeof USERS !== 'undefined') {
+                    const parentUser = USERS[username];
+                    if (parentUser && parentUser.children) {
+                        parentUser.children.forEach(childUsername => {
+                            parentChildren[childUsername] = true;
+                        });
+                    }
                 }
             }
             

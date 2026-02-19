@@ -815,13 +815,15 @@
             if (saved) trainings = JSON.parse(saved);
 
             // Load parent's children from USERS data instead of localStorage
-            if (currentUser.role === 'parent' && USERS[currentUser.username]) {
-                const parentUser = USERS[currentUser.username];
-                if (parentUser.children) {
-                    parentChildren = {};
-                    parentUser.children.forEach(childUsername => {
-                        parentChildren[childUsername] = true;
-                    });
+            if (currentUser.role === 'parent') {
+                parentChildren = {}; // Reset to ensure clean state
+                if (USERS[currentUser.username]) {
+                    const parentUser = USERS[currentUser.username];
+                    if (parentUser.children) {
+                        parentUser.children.forEach(childUsername => {
+                            parentChildren[childUsername] = true;
+                        });
+                    }
                 }
             }
 

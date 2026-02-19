@@ -108,13 +108,15 @@ function loadTrainingData() {
     }
 
     // Load parent's children from database.js instead of localStorage
-    if (currentUser && currentUser.role === 'parent' && typeof USERS !== 'undefined') {
-        const parentUser = USERS[currentUser.username];
-        if (parentUser && parentUser.children) {
-            parentChildren = {};
-            parentUser.children.forEach(childUsername => {
-                parentChildren[childUsername] = true;
-            });
+    if (currentUser && currentUser.role === 'parent') {
+        parentChildren = {}; // Reset to ensure clean state
+        if (typeof USERS !== 'undefined') {
+            const parentUser = USERS[currentUser.username];
+            if (parentUser && parentUser.children) {
+                parentUser.children.forEach(childUsername => {
+                    parentChildren[childUsername] = true;
+                });
+            }
         }
     }
 }
