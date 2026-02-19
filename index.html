@@ -1653,13 +1653,16 @@
             localStorage.setItem('lastRole', userRole);
             console.log('Saved to localStorage:', username, userRole);
             
-            // Load parent's children from localStorage if parent
+            // Load parent's children from database.js if parent
             if (userRole === 'parent') {
-                const savedChildren = localStorage.getItem('parentChildren_' + username);
-                if (savedChildren) {
-                    parentChildren = JSON.parse(savedChildren);
-                } else {
-                    parentChildren = {};
+                parentChildren = {}; // Reset to ensure clean state
+                if (typeof USERS !== 'undefined') {
+                    const parentUser = USERS[username];
+                    if (parentUser && parentUser.children) {
+                        parentUser.children.forEach(childUsername => {
+                            parentChildren[childUsername] = true;
+                        });
+                    }
                 }
             }
             
