@@ -294,12 +294,36 @@
 
 <body>
     <script>
-        (function () {
-            let user = null;
+        const API_BASE = `${window.location.protocol}//${window.location.hostname}:4000/api`;
+
+        (async function () {
             try {
-                user = JSON.parse(localStorage.getItem('currentUser'));
-            } catch (e) { }
-            if (!user || !user.isLoggedIn || !['coach', 'player', 'parent'].includes(user.role)) {
+                const response = await fetch(`${API_BASE}/auth/me`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                const payload = await response.json();
+                const user = payload.user;
+                if (!user || !['coach', 'player', 'parent'].includes(user.role)) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                window.__sessionUser = {
+                    username: user.username,
+                    role: user.role,
+                    playerCategory: user.playerCategory || null,
+                    isLoggedIn: true
+                };
+
+                localStorage.setItem('currentUser', JSON.stringify(window.__sessionUser));
+            } catch (e) {
                 window.location.href = 'index.html';
             }
         })();
@@ -329,11 +353,23 @@
                     </div>
                     <div class="form-group">
                         <label for="noticeTarget">Pre koho</label>
-                        <select id="noticeTarget">
+                        <select id="noticeTarget" onchange="toggleTargetCategoryFields()">
                             <option value="all">Všetci</option>
                             <option value="players">Hráči</option>
                             <option value="parents">Rodičia</option>
                             <option value="coaches">Tréneri</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="noticeCategoryGroup" style="display:none;">
+                        <label for="noticePlayerCategory">Kategória hráčov</label>
+                        <select id="noticePlayerCategory">
+                            <option value="">Všetky kategórie hráčov</option>
+                            <option value="pripravka_u9">Prípravka U9</option>
+                            <option value="pripravka_u11">Prípravka U11</option>
+                            <option value="ziaci">Žiaci</option>
+                            <option value="dorastenci">Dorastenci</option>
+                            <option value="adults_young">Dospelí - Mladí</option>
+                            <option value="adults_pro">Dospelí - Skúsení</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -355,11 +391,23 @@
                     </div>
                     <div class="form-group">
                         <label for="pollTarget">Pre koho</label>
-                        <select id="pollTarget">
+                        <select id="pollTarget" onchange="toggleTargetCategoryFields()">
                             <option value="all">Všetci</option>
                             <option value="players">Hráči</option>
                             <option value="parents">Rodičia</option>
                             <option value="coaches">Tréneri</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="pollCategoryGroup" style="display:none;">
+                        <label for="pollPlayerCategory">Kategória hráčov</label>
+                        <select id="pollPlayerCategory">
+                            <option value="">Všetky kategórie hráčov</option>
+                            <option value="pripravka_u9">Prípravka U9</option>
+                            <option value="pripravka_u11">Prípravka U11</option>
+                            <option value="ziaci">Žiaci</option>
+                            <option value="dorastenci">Dorastenci</option>
+                            <option value="adults_young">Dospelí - Mladí</option>
+                            <option value="adults_pro">Dospelí - Skúsení</option>
                         </select>
                     </div>
                     <button class="btn" onclick="createPoll()"><i class="fas fa-plus"></i> Pridať anketu</button>
@@ -378,28 +426,71 @@
     </div>
 
     <script>
-        const STORAGE_NOTICES = 'club_announcements';
-        const STORAGE_POLLS = 'club_polls';
-        const STORAGE_VOTES = 'club_poll_votes';
         const STORAGE_SEEN_PREFIX = 'importantInfoSeenEvents_';
 
         let currentUser = null;
         let notices = [];
         let polls = [];
-        let votes = {};
         let seenEvents = [];
+        let csrfTokenCache = null;
 
-        function loadState() {
-            currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
-            notices = JSON.parse(localStorage.getItem(STORAGE_NOTICES) || '[]');
-            polls = JSON.parse(localStorage.getItem(STORAGE_POLLS) || '[]');
-            votes = JSON.parse(localStorage.getItem(STORAGE_VOTES) || '{}');
+        async function ensureCsrfToken() {
+            if (csrfTokenCache) {
+                return csrfTokenCache;
+            }
+
+            const response = await fetch(`${API_BASE}/csrf-token`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                throw new Error('Nepodarilo sa načítať CSRF token.');
+            }
+
+            const payload = await response.json();
+            csrfTokenCache = payload.csrfToken;
+            return csrfTokenCache;
         }
 
-        function saveState() {
-            localStorage.setItem(STORAGE_NOTICES, JSON.stringify(notices));
-            localStorage.setItem(STORAGE_POLLS, JSON.stringify(polls));
-            localStorage.setItem(STORAGE_VOTES, JSON.stringify(votes));
+        async function apiFetch(path, options = {}) {
+            const response = await fetch(`${API_BASE}${path}`, {
+                credentials: 'include',
+                ...options,
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(options.headers || {})
+                }
+            });
+
+            if (!response.ok) {
+                const payload = await response.json().catch(() => ({}));
+                throw new Error(payload.message || `API chyba (${response.status})`);
+            }
+
+            if (response.status === 204) {
+                return null;
+            }
+
+            return response.json();
+        }
+
+        async function loadState() {
+            currentUser = window.__sessionUser || JSON.parse(localStorage.getItem('currentUser') || 'null');
+
+            try {
+                const [noticesPayload, pollsPayload] = await Promise.all([
+                    apiFetch('/announcements'),
+                    apiFetch('/polls')
+                ]);
+
+                notices = Array.isArray(noticesPayload && noticesPayload.items) ? noticesPayload.items : [];
+                polls = Array.isArray(pollsPayload && pollsPayload.items) ? pollsPayload.items : [];
+            } catch (error) {
+                console.error(error);
+                notices = [];
+                polls = [];
+            }
         }
 
         function roleLabel(role) {
@@ -415,6 +506,30 @@
             if (target === 'parents') return currentUser.role === 'parent';
             if (target === 'coaches') return currentUser.role === 'coach';
             return false;
+        }
+
+        function categoryLabel(category) {
+            if (category === 'pripravka_u9') return 'Prípravka U9';
+            if (category === 'pripravka_u11') return 'Prípravka U11';
+            if (category === 'ziaci') return 'Žiaci';
+            if (category === 'dorastenci') return 'Dorastenci';
+            if (category === 'adults_young') return 'Dospelí - Mladí';
+            if (category === 'adults_pro') return 'Dospelí - Skúsení';
+            return category || '';
+        }
+
+        function toggleTargetCategoryFields() {
+            const noticeTarget = document.getElementById('noticeTarget');
+            const pollTarget = document.getElementById('pollTarget');
+            const noticeCategoryGroup = document.getElementById('noticeCategoryGroup');
+            const pollCategoryGroup = document.getElementById('pollCategoryGroup');
+
+            if (noticeCategoryGroup && noticeTarget) {
+                noticeCategoryGroup.style.display = noticeTarget.value === 'players' ? 'block' : 'none';
+            }
+            if (pollCategoryGroup && pollTarget) {
+                pollCategoryGroup.style.display = pollTarget.value === 'players' ? 'block' : 'none';
+            }
         }
 
         function targetLabel(target) {
@@ -444,11 +559,21 @@
 
         function getVisibleEvents() {
             const noticeEvents = notices
-                .filter(n => canSeeTarget(n.target) || currentUser.role === 'coach')
+                .filter(n => {
+                    if (currentUser.role === 'coach') return true;
+                    if (!canSeeTarget(n.target)) return false;
+                    if (n.target !== 'players') return true;
+                    return !n.playerCategory || n.playerCategory === currentUser.playerCategory;
+                })
                 .map(n => ({ type: 'notice', createdAt: n.createdAt, data: n }));
 
             const pollEvents = polls
-                .filter(p => canSeeTarget(p.target) || currentUser.role === 'coach')
+                .filter(p => {
+                    if (currentUser.role === 'coach') return true;
+                    if (!canSeeTarget(p.target)) return false;
+                    if (p.target !== 'players') return true;
+                    return !p.playerCategory || p.playerCategory === currentUser.playerCategory;
+                })
                 .map(p => ({ type: 'poll', createdAt: p.createdAt, data: p }));
 
             return [...noticeEvents, ...pollEvents].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -491,10 +616,12 @@
             document.getElementById('coachPanel').style.display = currentUser.role === 'coach' ? 'block' : 'none';
         }
 
-        function createNotice() {
+        async function createNotice() {
             const title = document.getElementById('noticeTitle').value.trim();
             const message = document.getElementById('noticeMessage').value.trim();
             const target = document.getElementById('noticeTarget').value;
+            const playerCategoryRaw = document.getElementById('noticePlayerCategory').value;
+            const playerCategory = target === 'players' && playerCategoryRaw ? playerCategoryRaw : null;
             const important = document.getElementById('noticeImportant').checked;
 
             if (!title || !message) {
@@ -502,26 +629,33 @@
                 return;
             }
 
-            notices.unshift({
-                id: Date.now(),
-                title,
-                message,
-                target,
-                important,
-                createdBy: currentUser.username,
-                createdAt: new Date().toISOString()
-            });
+            try {
+                const csrfToken = await ensureCsrfToken();
+                const payload = await apiFetch('/announcements', {
+                    method: 'POST',
+                    headers: {
+                        'x-csrf-token': csrfToken
+                    },
+                    body: JSON.stringify({ title, message, target, playerCategory, important })
+                });
+                notices.unshift(payload.item);
+            } catch (error) {
+                alert(error.message || 'Nepodarilo sa vytvoriť oznámenie.');
+                return;
+            }
 
-            saveState();
             document.getElementById('noticeTitle').value = '';
             document.getElementById('noticeMessage').value = '';
+            document.getElementById('noticePlayerCategory').value = '';
             document.getElementById('noticeImportant').checked = false;
             renderEvents();
         }
 
-        function createPoll() {
+        async function createPoll() {
             const question = document.getElementById('pollQuestion').value.trim();
             const target = document.getElementById('pollTarget').value;
+            const playerCategoryRaw = document.getElementById('pollPlayerCategory').value;
+            const playerCategory = target === 'players' && playerCategoryRaw ? playerCategoryRaw : null;
             const options = document.getElementById('pollOptions').value
                 .split('\n')
                 .map(x => x.trim())
@@ -532,50 +666,109 @@
                 return;
             }
 
-            polls.unshift({
-                id: Date.now(),
-                question,
-                options,
-                target,
-                createdBy: currentUser.username,
-                createdAt: new Date().toISOString(),
-                active: true
-            });
+            try {
+                const csrfToken = await ensureCsrfToken();
+                const payload = await apiFetch('/polls', {
+                    method: 'POST',
+                    headers: {
+                        'x-csrf-token': csrfToken
+                    },
+                    body: JSON.stringify({ question, options, target, playerCategory })
+                });
+                polls.unshift(payload.item);
+            } catch (error) {
+                alert(error.message || 'Nepodarilo sa vytvoriť anketu.');
+                return;
+            }
 
-            saveState();
             document.getElementById('pollQuestion').value = '';
             document.getElementById('pollOptions').value = '';
+            document.getElementById('pollPlayerCategory').value = '';
             renderEvents();
         }
 
-        function deleteNotice(id) {
-            notices = notices.filter(n => n.id !== id);
-            saveState();
+        async function deleteNotice(id) {
+            try {
+                const csrfToken = await ensureCsrfToken();
+                await apiFetch(`/announcements/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'x-csrf-token': csrfToken
+                    }
+                });
+            } catch (error) {
+                alert(error.message || 'Nepodarilo sa zmazať oznámenie.');
+                return;
+            }
+
+            notices = notices.filter(n => String(n.id) !== String(id));
             renderEvents();
         }
 
-        function deletePoll(id) {
-            polls = polls.filter(p => p.id !== id);
-            delete votes[id];
-            saveState();
+        async function deletePoll(id) {
+            try {
+                const csrfToken = await ensureCsrfToken();
+                await apiFetch(`/polls/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'x-csrf-token': csrfToken
+                    }
+                });
+            } catch (error) {
+                alert(error.message || 'Nepodarilo sa zmazať anketu.');
+                return;
+            }
+
+            polls = polls.filter(p => String(p.id) !== String(id));
             renderEvents();
         }
 
-        function votePoll(pollId, optionIndex) {
+        async function votePoll(pollId, optionIndex) {
             if (currentUser.role === 'coach') return;
-            if (!votes[pollId]) votes[pollId] = {};
-            votes[pollId][currentUser.username] = optionIndex;
-            saveState();
+
+            try {
+                const csrfToken = await ensureCsrfToken();
+                await apiFetch(`/polls/${pollId}/vote`, {
+                    method: 'POST',
+                    headers: {
+                        'x-csrf-token': csrfToken
+                    },
+                    body: JSON.stringify({ optionIndex })
+                });
+                const payload = await apiFetch('/polls');
+                polls = Array.isArray(payload && payload.items) ? payload.items : [];
+            } catch (error) {
+                alert(error.message || 'Nepodarilo sa odovzdať hlas.');
+                return;
+            }
+
+            renderEvents();
+        }
+
+        async function closePoll(id) {
+            try {
+                const csrfToken = await ensureCsrfToken();
+                await apiFetch(`/polls/${id}/close`, {
+                    method: 'PATCH',
+                    headers: {
+                        'x-csrf-token': csrfToken
+                    }
+                });
+                const payload = await apiFetch('/polls');
+                polls = Array.isArray(payload && payload.items) ? payload.items : [];
+            } catch (error) {
+                alert(error.message || 'Nepodarilo sa ukončiť anketu.');
+                return;
+            }
+
             renderEvents();
         }
 
         function getPollResults(poll) {
-            const map = votes[poll.id] || {};
-            const counts = new Array(poll.options.length).fill(0);
-            Object.values(map).forEach(index => {
-                if (counts[index] !== undefined) counts[index] += 1;
-            });
-            return counts;
+            if (Array.isArray(poll.results)) {
+                return poll.results;
+            }
+            return new Array(poll.options.length).fill(0);
         }
 
         function renderEvents() {
@@ -595,31 +788,30 @@
                     return `
                         <div class="item notice ${n.important ? 'notice-important' : ''}">
                             <div class="event-type notice">${n.important ? 'DÔLEŽITÁ SPRÁVA' : 'SPRÁVA'}</div>
-                            <div class="meta">${formatDate(n.createdAt)} • ${n.createdBy} • ${targetLabel(n.target)}</div>
+                            <div class="meta">${formatDate(n.createdAt)} • ${n.createdBy} • ${targetLabel(n.target)}${n.playerCategory ? ' • ' + categoryLabel(n.playerCategory) : ''}</div>
                             <div class="title">${n.title}</div>
                             <div>${n.message}</div>
-                            ${currentUser.role === 'coach' ? `<button class="delete-btn" onclick="deleteNotice(${n.id})"><i class='fas fa-trash'></i> Zmazať</button>` : ''}
+                            ${currentUser.role === 'coach' ? `<button class="delete-btn" onclick="deleteNotice('${n.id}')"><i class='fas fa-trash'></i> Zmazať</button>` : ''}
                         </div>
                     `;
                 }
 
                 const p = event.data;
-                const pollVotes = votes[p.id] || {};
-                const selected = pollVotes[currentUser.username];
+                const selected = p.selectedOption;
                 const counts = getPollResults(p);
-                const totalVotes = counts.reduce((a, b) => a + b, 0);
+                const totalVotes = Number.isInteger(p.totalVotes) ? p.totalVotes : counts.reduce((a, b) => a + b, 0);
 
                 const optionsHtml = p.options.map((opt, idx) => {
                     const isSelected = selected === idx;
                     const cnt = counts[idx] || 0;
                     const percent = totalVotes > 0 ? Math.round((cnt / totalVotes) * 100) : 0;
 
-                    if (currentUser.role === 'coach') {
+                    if (currentUser.role === 'coach' || !p.active) {
                         return `<div class="result-row"><span>${opt}</span><span>${cnt} hlasov (${percent}%)</span></div>`;
                     }
 
                     return `
-                        <button class="poll-option-btn ${isSelected ? 'selected' : ''}" onclick="votePoll(${p.id}, ${idx})">
+                        <button class="poll-option-btn ${isSelected ? 'selected' : ''}" onclick="votePoll('${p.id}', ${idx})">
                             ${opt}
                         </button>
                     `;
@@ -627,19 +819,46 @@
 
                 return `
                     <div class="item poll">
-                        <div class="event-type poll">ANKETA</div>
-                        <div class="meta">${formatDate(p.createdAt)} • ${p.createdBy} • ${targetLabel(p.target)}</div>
+                        <div class="event-type poll">ANKETA${p.active ? '' : ' • UZAVRETÁ'}</div>
+                        <div class="meta">${formatDate(p.createdAt)} • ${p.createdBy} • ${targetLabel(p.target)}${p.playerCategory ? ' • ' + categoryLabel(p.playerCategory) : ''}</div>
                         <div class="title">${p.question}</div>
                             <div class="poll-options">${optionsHtml}</div>
                             ${currentUser.role !== 'coach' ? `<div class="meta">Hlasov spolu: ${totalVotes}</div>` : ''}
-                            ${currentUser.role === 'coach' ? `<button class="delete-btn" onclick="deletePoll(${p.id})"><i class='fas fa-trash'></i> Zmazať</button>` : ''}
+                            ${currentUser.role === 'coach' ? `
+                                ${p.active ? `<button class="btn" style="margin-right:8px;" onclick="closePoll('${p.id}')"><i class='fas fa-stop'></i> Ukončiť anketu</button>` : ''}
+                                <button class="delete-btn" onclick="deletePoll('${p.id}')"><i class='fas fa-trash'></i> Zmazať</button>
+                            ` : ''}
                     </div>
                 `;
             }).join('');
         }
 
-        function init() {
-            loadState();
+        async function init() {
+            await loadState();
+            if (!currentUser || !currentUser.isLoggedIn) {
+                try {
+                    const response = await fetch(`${API_BASE}/auth/me`, {
+                        method: 'GET',
+                        credentials: 'include'
+                    });
+                    if (response.ok) {
+                        const payload = await response.json();
+                        const user = payload.user;
+                        if (user) {
+                            currentUser = {
+                                username: user.username,
+                                role: user.role,
+                                playerCategory: user.playerCategory || null,
+                                isLoggedIn: true
+                            };
+                            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                        }
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+
             if (!currentUser || !currentUser.isLoggedIn) {
                 window.location.href = 'index.html';
                 return;
@@ -648,6 +867,7 @@
             loadSeenEvents();
 
             renderHeader();
+            toggleTargetCategoryFields();
             renderEvents();
         }
 

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="sk">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,14 +15,16 @@
             margin: 0;
             padding: 0;
         }
+
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 24px 40px;
-            background: rgba(0,0,0,0.25);
+            background: rgba(0, 0, 0, 0.25);
             border-bottom: 3px solid #ffd700;
         }
+
         .header h1 {
             color: #ffd700;
             font-size: 28px;
@@ -29,8 +32,9 @@
             align-items: center;
             gap: 12px;
         }
+
         .btn-back {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             color: #ffd700;
             border: none;
             padding: 10px 20px;
@@ -39,23 +43,27 @@
             cursor: pointer;
             transition: background 0.2s;
         }
+
         .btn-back:hover {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
         }
+
         .container {
             max-width: 900px;
             margin: 40px auto;
-            background: rgba(255,255,255,0.07);
+            background: rgba(255, 255, 255, 0.07);
             border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
             padding: 40px 32px;
         }
+
         .search-bar {
             display: flex;
             gap: 12px;
             margin-bottom: 28px;
             justify-content: center;
         }
+
         .search-bar input {
             padding: 10px 16px;
             border-radius: 6px;
@@ -63,26 +71,30 @@
             font-size: 16px;
             width: 220px;
         }
+
         .player-list {
             display: flex;
             flex-wrap: wrap;
             gap: 24px;
             justify-content: center;
         }
+
         .player-card {
-            background: rgba(0,0,0,0.13);
+            background: rgba(0, 0, 0, 0.13);
             border-radius: 10px;
             padding: 24px 18px;
             width: 220px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
             cursor: pointer;
             transition: background 0.2s, transform 0.2s;
             text-align: center;
         }
+
         .player-card:hover {
-            background: rgba(255,255,255,0.13);
+            background: rgba(255, 255, 255, 0.13);
             transform: translateY(-4px) scale(1.03);
         }
+
         .player-avatar {
             width: 70px;
             height: 70px;
@@ -95,48 +107,76 @@
             color: #003399;
             margin: 0 auto 10px auto;
         }
+
         .player-name {
             font-size: 20px;
             font-weight: bold;
             color: #ffd700;
             margin-bottom: 6px;
         }
+
         .player-info {
             color: #fff;
             font-size: 15px;
             margin-bottom: 2px;
         }
+
         .player-category {
             color: #ffd700;
             font-size: 13px;
             margin-bottom: 2px;
         }
+
         .player-position {
             color: #fff;
             font-size: 13px;
             margin-bottom: 2px;
         }
+
         .player-stats-mini {
             color: #fff;
             font-size: 13px;
             margin-top: 8px;
             padding-top: 8px;
-            border-top: 1px solid rgba(255,255,255,0.15);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
         }
     </style>
 </head>
+
 <body>
     <script>
-    // Restrict access to coaches only
-    (function() {
-        let user = null;
-        try {
-            user = JSON.parse(localStorage.getItem('currentUser'));
-        } catch (e) {}
-        if (!user || !user.isLoggedIn || user.role !== 'coach') {
-            window.location.href = 'index.html';
+        const API_BASE = `${window.location.protocol}//${window.location.hostname}:4000/api`;
+
+        async function guardCoachAccess() {
+            try {
+                const response = await fetch(`${API_BASE}/auth/me`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                const payload = await response.json();
+                const user = payload.user;
+                if (!user || user.role !== 'coach') {
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                localStorage.setItem('currentUser', JSON.stringify({
+                    username: user.username,
+                    role: user.role,
+                    isLoggedIn: true
+                }));
+            } catch (error) {
+                window.location.href = 'index.html';
+            }
         }
-    })();
+
+        guardCoachAccess();
     </script>
     <div class="header">
         <h1><i class="fas fa-users"></i> Zoznam hráčov</h1>
@@ -150,57 +190,58 @@
             <!-- Player cards will be loaded here -->
         </div>
     </div>
-    <script src="database.js"></script>
     <script>
-    function normalizeText(text) {
-        return (text || '')
-            .toString()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .toLowerCase()
-            .trim();
-    }
+        const PLAYERS = {};
 
-    function getCategoryLabel(category) {
-        if (category === 'pripravka_u9') return 'Prípravka U9';
-        if (category === 'pripravka_u11') return 'Prípravka U11';
-        if (category === 'adults_young') return 'Dospelí - Mladí';
-        if (category === 'adults_pro') return 'Dospelí - Skúsení';
-        return category;
-    }
-
-    function renderPlayerList() {
-        const search = normalizeText(document.getElementById('searchInput').value);
-        const container = document.getElementById('playerListContainer');
-        container.innerHTML = '';
-        if (typeof PLAYERS === 'undefined') {
-            container.innerHTML = '<div style="color:#ffd700;text-align:center;font-size:22px;padding:40px 0;">Žiadni hráči neboli nájdení.</div>';
-            return;
+        function normalizeText(text) {
+            return (text || '')
+                .toString()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase()
+                .trim();
         }
-        let found = false;
-        for (const username in PLAYERS) {
-            const p = PLAYERS[username];
-            const categoryLabel = getCategoryLabel(p.category);
-            const searchable = [
-                normalizeText(p.fullName),
-                normalizeText(p.position),
-                normalizeText(categoryLabel)
-            ];
 
-            if (
-                search === '' || searchable.some(value => value.includes(search))
-            ) {
-                found = true;
-                const stats = (p.stats && typeof p.stats === 'object') ? p.stats : {};
-                const matches = (typeof stats.matches === 'number') ? stats.matches : 0;
-                const goals = (typeof stats.goals === 'number') ? stats.goals : 0;
+        function getCategoryLabel(category) {
+            if (category === 'pripravka_u9') return 'Prípravka U9';
+            if (category === 'pripravka_u11') return 'Prípravka U11';
+            if (category === 'adults_young') return 'Dospelí - Mladí';
+            if (category === 'adults_pro') return 'Dospelí - Skúsení';
+            return category;
+        }
 
-                const card = document.createElement('div');
-                card.className = 'player-card';
-                card.onclick = () => {
-                    window.location.href = `player_detail_coach.html?username=${encodeURIComponent(username)}`;
-                };
-                card.innerHTML = `
+        function renderPlayerList() {
+            const search = normalizeText(document.getElementById('searchInput').value);
+            const container = document.getElementById('playerListContainer');
+            container.innerHTML = '';
+            if (Object.keys(PLAYERS).length === 0) {
+                container.innerHTML = '<div style="color:#ffd700;text-align:center;font-size:22px;padding:40px 0;">Žiadni hráči neboli nájdení.</div>';
+                return;
+            }
+            let found = false;
+            for (const username in PLAYERS) {
+                const p = PLAYERS[username];
+                const categoryLabel = getCategoryLabel(p.category);
+                const searchable = [
+                    normalizeText(p.fullName),
+                    normalizeText(p.position),
+                    normalizeText(categoryLabel)
+                ];
+
+                if (
+                    search === '' || searchable.some(value => value.includes(search))
+                ) {
+                    found = true;
+                    const stats = (p.stats && typeof p.stats === 'object') ? p.stats : {};
+                    const matches = (typeof stats.matches === 'number') ? stats.matches : 0;
+                    const goals = (typeof stats.goals === 'number') ? stats.goals : 0;
+
+                    const card = document.createElement('div');
+                    card.className = 'player-card';
+                    card.onclick = () => {
+                        window.location.href = `player_detail_coach.html?username=${encodeURIComponent(username)}`;
+                    };
+                    card.innerHTML = `
                     <div class="player-avatar"><i class='fas fa-user'></i></div>
                     <div class="player-name">${p.fullName}</div>
                     <div class="player-info">${p.dateOfBirth} | #${p.shirtNumber}</div>
@@ -208,14 +249,15 @@
                     <div class="player-position">${p.position}</div>
                     <div class="player-stats-mini">Zápasy: ${matches} • Góly: ${goals}</div>
                 `;
-                container.appendChild(card);
+                    container.appendChild(card);
+                }
+            }
+            if (!found) {
+                container.innerHTML = '<div style="color:#ffd700;text-align:center;font-size:22px;padding:40px 0;">Žiadni hráči neboli nájdení.</div>';
             }
         }
-        if (!found) {
-            container.innerHTML = '<div style="color:#ffd700;text-align:center;font-size:22px;padding:40px 0;">Žiadni hráči neboli nájdení.</div>';
-        }
-    }
-    document.addEventListener('DOMContentLoaded', renderPlayerList);
+        document.addEventListener('DOMContentLoaded', renderPlayerList);
     </script>
 </body>
+
 </html>

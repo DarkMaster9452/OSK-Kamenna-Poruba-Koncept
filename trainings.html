@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="sk">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -99,11 +100,13 @@
             font-size: 18px;
         }
 
-        .coach-section, .player-section {
+        .coach-section,
+        .player-section {
             display: none;
         }
 
-        .coach-section.active, .player-section.active {
+        .coach-section.active,
+        .player-section.active {
             display: block;
         }
 
@@ -150,27 +153,30 @@
             font-family: inherit;
             font-size: 14px;
         }
+
         .form-group select {
-              padding: 10px;
-              border: 2px solid #ffd700;
-              border-radius: 5px;
-              background: #fff;
-              color: #003399;
-              font-family: inherit;
-              font-size: 14px;
-              font-weight: bold;
-              box-shadow: 0 2px 8px rgba(255,215,0,0.10);
-              transition: background 0.2s, color 0.2s;
+            padding: 10px;
+            border: 2px solid #ffd700;
+            border-radius: 5px;
+            background: #fff;
+            color: #003399;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.10);
+            transition: background 0.2s, color 0.2s;
         }
 
         .form-group input::placeholder {
             color: rgba(255, 255, 255, 0.5);
         }
+
         .form-group select:focus {
             background: #f7f7f7;
             color: #003399;
             outline: none;
         }
+
         /* Coach create form input fields */
         .coach-form .form-group input[type="date"],
         .coach-form .form-group input[type="time"],
@@ -179,9 +185,10 @@
             color: #003399;
             border: 2px solid #ffd700;
             font-weight: bold;
-            box-shadow: 0 2px 8px rgba(255,215,0,0.10);
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.10);
             transition: background 0.2s, color 0.2s;
         }
+
         .coach-form .form-group input[type="date"]:focus,
         .coach-form .form-group input[type="time"]:focus,
         .coach-form .form-group input[type="number"]:focus {
@@ -325,7 +332,9 @@
             flex-wrap: wrap;
         }
 
-        .btn-yes, .btn-no, .btn-unknown {
+        .btn-yes,
+        .btn-no,
+        .btn-unknown {
             flex: 1;
             min-width: 70px;
             padding: 10px 8px;
@@ -343,7 +352,8 @@
             border-color: #2ecc71;
         }
 
-        .btn-yes:hover, .btn-yes.active {
+        .btn-yes:hover,
+        .btn-yes.active {
             background: #2ecc71;
             color: white;
         }
@@ -354,7 +364,8 @@
             border-color: #e74c3c;
         }
 
-        .btn-no:hover, .btn-no.active {
+        .btn-no:hover,
+        .btn-no.active {
             background: #e74c3c;
             color: white;
         }
@@ -365,7 +376,8 @@
             border-color: #95a5a6;
         }
 
-        .btn-unknown:hover, .btn-unknown.active {
+        .btn-unknown:hover,
+        .btn-unknown.active {
             background: #95a5a6;
             color: white;
         }
@@ -610,6 +622,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="header">
         <h1>
@@ -619,59 +632,114 @@
             <button id="backBtn" class="btn btn-back" onclick="goBack()" style="display: none;">
                 <i class="fas fa-arrow-left"></i> Späť
             </button>
-                <button id="userDisplay" class="user-info" style="display: none; background: none; border: none; cursor: pointer;">
-                    <i class="fas fa-user-circle"></i> <span id="userDisplay2"></span>
-                        <style>
-                        #userDisplay.user-info {
-                            position: relative;
-                            background: #fff;
-                            border: 2px solid #ffd700;
-                            box-shadow: 0 2px 8px rgba(255,215,0,0.12);
-                            font-weight: bold;
-                            overflow: hidden;
-                            transition: background 0.2s, color 0.2s;
-                        }
-                        #userDisplay.user-info::before {
-                            content: '';
-                            position: absolute;
-                            inset: 0;
-                            background: rgba(255,215,0,0.18);
-                            pointer-events: none;
-                            z-index: 0;
-                        }
-                        #userDisplay.user-info span {
-                            color: #ffd700;
-                            position: relative;
-                            z-index: 1;
-                        }
-                        #userDisplay.user-info i {
-                            color: #003399;
-                            position: relative;
-                            z-index: 1;
-                        }
-                        #userDisplay.user-info:hover {
-                            background: #fffbe6;
-                            box-shadow: 0 4px 16px rgba(255,215,0,0.18);
-                        }
-                        </style>
-                </button>
+            <button id="userDisplay" class="user-info"
+                style="display: none; background: none; border: none; cursor: pointer;">
+                <i class="fas fa-user-circle"></i> <span id="userDisplay2"></span>
+                <style>
+                    #userDisplay.user-info {
+                        position: relative;
+                        background: #fff;
+                        border: 2px solid #ffd700;
+                        box-shadow: 0 2px 8px rgba(255, 215, 0, 0.12);
+                        font-weight: bold;
+                        overflow: hidden;
+                        transition: background 0.2s, color 0.2s;
+                    }
+
+                    #userDisplay.user-info::before {
+                        content: '';
+                        position: absolute;
+                        inset: 0;
+                        background: rgba(255, 215, 0, 0.18);
+                        pointer-events: none;
+                        z-index: 0;
+                    }
+
+                    #userDisplay.user-info span {
+                        color: #ffd700;
+                        position: relative;
+                        z-index: 1;
+                    }
+
+                    #userDisplay.user-info i {
+                        color: #003399;
+                        position: relative;
+                        z-index: 1;
+                    }
+
+                    #userDisplay.user-info:hover {
+                        background: #fffbe6;
+                        box-shadow: 0 4px 16px rgba(255, 215, 0, 0.18);
+                    }
+                </style>
+            </button>
         </div>
     </div>
 
     <div class="container">
         <!-- Logout Modal -->
-        <div id="logoutModal" class="modal" style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;">
-            <div class="modal-content" style="background:#fff;color:#222;max-width:350px;width:90vw;margin:auto;border-radius:10px;padding:30px 20px;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;animation:modalSlideIn 0.3s;">
+        <div id="logoutModal" class="modal"
+            style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;">
+            <div class="modal-content"
+                style="background:#fff;color:#222;max-width:350px;width:90vw;margin:auto;border-radius:10px;padding:30px 20px;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;animation:modalSlideIn 0.3s;">
                 <div class="modal-header" style="display:flex;align-items:center;justify-content:space-between;">
                     <h2 style="font-size:22px;margin:0;z-index:1;">Odhlásenie</h2>
-                    <button class="close-btn" onclick="closeLogoutModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;"><i class="fas fa-times"></i></button>
+                    <button class="close-btn" onclick="closeLogoutModal()"
+                        style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;"><i
+                            class="fas fa-times"></i></button>
                 </div>
                 <div style="margin: 20px 0; text-align: center;">
                     <p>Ste prihlásený ako <b id="logoutUserName"></b>.</p>
                     <p>Čo chcete urobiť?</p>
                 </div>
-                <button class="btn btn-primary" style="width:100%;margin-bottom:10px;background:#e74c3c;color:white;" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Odhlásiť sa</button>
-                <button class="btn btn-secondary" style="width:100%;background:#ffd700;color:#003399;" onclick="handleSwitchAccount()"><i class="fas fa-user-switch"></i> Prepnúť účet</button>
+                <button class="btn btn-primary" style="width:100%;margin-bottom:10px;background:#e74c3c;color:white;"
+                    onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Odhlásiť sa</button>
+                <button class="btn btn-secondary"
+                    style="width:100%;margin-bottom:10px;background:#ffd700;color:#003399;"
+                    onclick="handleSwitchAccount()"><i class="fas fa-user-switch"></i> Prepnúť účet</button>
+                <button class="btn btn-secondary"
+                    style="width:fit-content;display:flex;margin:0 auto 0;padding:7px 12px;font-size:12px;background:#1a5ccc;color:#fff;"
+                    onclick="openChangePasswordModal()"><i class="fas fa-key"></i> Zmeniť heslo</button>
+            </div>
+        </div>
+
+        <!-- Change Password Modal -->
+        <div id="changePasswordModal" class="modal"
+            style="display:none;position:fixed;z-index:10000;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;">
+            <div class="modal-content"
+                style="background:#fff;color:#222;max-width:420px;width:90vw;margin:auto;border-radius:10px;padding:30px 20px;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;animation:modalSlideIn 0.3s;">
+                <div class="modal-header" style="display:flex;align-items:center;justify-content:space-between;">
+                    <h2 style="font-size:26px;margin:0;z-index:1;">Zmena hesla</h2>
+                    <button class="close-btn" onclick="closeChangePasswordModal()"
+                        style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;"><i
+                            class="fas fa-times"></i></button>
+                </div>
+                <div style="margin: 20px 0; text-align: left; font-size:16px;">
+                    <div style="margin-bottom:12px;">
+                        <label for="newPasswordInput"
+                            style="display:block;font-weight:bold;margin-bottom:6px;font-size:15px;">Nové
+                            heslo</label>
+                        <input id="newPasswordInput" type="password" minlength="8"
+                            style="width:100%;padding:12px;border:1px solid #ccc;border-radius:5px;font-size:16px;"
+                            placeholder="Min. 8 znakov">
+                    </div>
+                    <div style="margin-bottom:12px;">
+                        <label for="confirmPasswordInput"
+                            style="display:block;font-weight:bold;margin-bottom:6px;font-size:15px;">Potvrdiť
+                            heslo</label>
+                        <input id="confirmPasswordInput" type="password" minlength="8"
+                            style="width:100%;padding:12px;border:1px solid #ccc;border-radius:5px;font-size:16px;"
+                            placeholder="Zopakujte heslo">
+                    </div>
+                    <div id="changePasswordError" style="display:none;color:#e74c3c;font-weight:bold;font-size:15px;">
+                    </div>
+                </div>
+                <button class="btn btn-secondary"
+                    style="width:100%;margin-bottom:10px;background:#1a5ccc;color:#fff;font-size:15px;padding:12px 14px;"
+                    onclick="submitPasswordChange()"><i class="fas fa-save"></i> Uložiť nové heslo</button>
+                <button class="btn btn-secondary"
+                    style="width:100%;background:#999;color:#fff;font-size:15px;padding:12px 14px;"
+                    onclick="closeChangePasswordModal()">Zrušiť</button>
             </div>
         </div>
         <!-- Empty State -->
@@ -686,7 +754,8 @@
         <div class="coach-section" id="coachSection">
             <div class="coach-form">
                 <h3><i class="fas fa-plus-circle"></i> Vytvoriť nový tréning</h3>
-                <div id="trainingError" style="display:none;color:#e74c3c;font-weight:bold;margin-bottom:10px;text-align:center;"></div>
+                <div id="trainingError"
+                    style="display:none;color:#e74c3c;font-weight:bold;margin-bottom:10px;text-align:center;"></div>
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="trainingDate">Dátum:</label>
@@ -727,7 +796,8 @@
                     </button>
                 </div>
 
-                <button type="button" id="toggleTrainingsBtn" class="btn-toggle-trainings" onclick="toggleCoachTrainings()">
+                <button type="button" id="toggleTrainingsBtn" class="btn-toggle-trainings"
+                    onclick="toggleCoachTrainings()">
                     <i class="fas fa-list"></i> Zobraziť záznam tréningov
                 </button>
             </div>
@@ -790,56 +860,100 @@
     </div>
 
     <script>
-        // Vloženie PLAYERS objektu priamo (bez závislosti na database.js)
-        const PLAYERS = {
-            'jozef_adamcik': { username: 'jozef_adamcik', fullName: 'Jozef Adamčík', category: 'ziaci', position: 'Brankár', shirtNumber: 1, age: 10, height: 145, weight: 38, dateOfBirth: '2015-05-12', joinedClub: '2023-09-01' },
-            'marko_adamcik': { username: 'marko_adamcik', fullName: 'Marko Adamčík', category: 'ziaci', position: 'Obranca', shirtNumber: 4, age: 8, height: 135, weight: 32, dateOfBirth: '2017-08-25', joinedClub: '2023-10-15' },
-            'lukas_kuba': { username: 'lukas_kuba', fullName: 'Lukáš Kuba', category: 'dorastenci', position: 'Stredopoliar', shirtNumber: 6, age: 12, height: 160, weight: 48, dateOfBirth: '2013-03-18', joinedClub: '2022-06-01' },
-            'jakub_horvath': { username: 'jakub_horvath', fullName: 'Jakub Horváth', category: 'dorastenci', position: 'Útočník', shirtNumber: 9, age: 11, height: 155, weight: 45, dateOfBirth: '2014-11-07', joinedClub: '2023-08-20' },
-            'robert_sabo': { username: 'robert_sabo', fullName: 'Róbert Sabo', category: 'adults_pro', position: 'Obranca', shirtNumber: 3, age: 27, height: 182, weight: 78, dateOfBirth: '1998-06-22', joinedClub: '2016-07-01' },
-            'stefan_polak': { username: 'stefan_polak', fullName: 'Štefan Polák', category: 'adults_young', position: 'Stredopoliar', shirtNumber: 5, age: 23, height: 175, weight: 70, dateOfBirth: '2002-09-14', joinedClub: '2021-09-01' },
-            'tomas_kamenicky': { username: 'tomas_kamenicky', fullName: 'Tomáš Kamenický', category: 'pripravky', position: 'Útočník', shirtNumber: 10, age: 15, height: 150, weight: 40, dateOfBirth: '2010-02-28', joinedClub: '2024-02-01' }
-        };
-
-        // Parent-child relationships from database
-        const USERS = {
-            'anna_adamcikova': { username: 'anna_adamcikova', role: 'parent', children: ['jozef_adamcik', 'marko_adamcik'] },
-            'milan_kuba': { username: 'milan_kuba', role: 'parent', children: ['lukas_kuba'] },
-            'eva_horvathova': { username: 'eva_horvathova', role: 'parent', children: ['jakub_horvath'] },
-            'julius_kamenicky': { username: 'julius_kamenicky', role: 'parent', children: ['tomas_kamenicky'] }
-        };
+        // Account/person data are loaded from backend only
+        const PLAYERS = {};
+        const USERS = {};
 
         let currentUser = { username: '', role: '', isLoggedIn: false };
         let trainings = [];
         let parentChildren = {};
         let coachTrainingsVisible = false;
+        const API_BASE = `${window.location.protocol}//${window.location.hostname}:4000/api`;
+        let csrfTokenCache = null;
 
-        window.addEventListener('load', function() {
-            // Skúsime najprv zo localStorage
-            let lastLogin = localStorage.getItem('lastLogin');
-            let lastRole = localStorage.getItem('lastRole');
-            
-            // Ak nie je v localStorage, skúsime z sessionStorage
-            if (!lastLogin) lastLogin = sessionStorage.getItem('lastLogin');
-            if (!lastRole) lastRole = sessionStorage.getItem('lastRole');
+        async function ensureCsrfToken() {
+            if (csrfTokenCache) {
+                return csrfTokenCache;
+            }
 
-            console.log('Page loaded. lastLogin:', lastLogin, 'lastRole:', lastRole);
-            console.log('All localStorage keys:', Object.keys(localStorage));
+            const response = await fetch(`${API_BASE}/csrf-token`, {
+                method: 'GET',
+                credentials: 'include'
+            });
 
-            if (!lastLogin || !lastRole) {
+            if (!response.ok) {
+                throw new Error('Nepodarilo sa načítať CSRF token.');
+            }
+
+            const payload = await response.json();
+            csrfTokenCache = payload.csrfToken;
+            return csrfTokenCache;
+        }
+
+        async function loadTrainingsData() {
+            try {
+                const response = await fetch(`${API_BASE}/trainings`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Nepodarilo sa načítať tréningy z backendu.');
+                }
+
+                const payload = await response.json();
+                const items = Array.isArray(payload.items) ? payload.items : [];
+                trainings = items.map(item => ({
+                    id: item.id,
+                    date: item.date,
+                    time: item.time,
+                    type: item.type,
+                    duration: item.duration,
+                    category: item.category,
+                    createdBy: item.createdBy,
+                    isActive: item.isActive,
+                    attendance: {}
+                }));
+                return;
+            } catch (error) {
+                console.error(error);
+            }
+
+            const saved = localStorage.getItem('trainings');
+            trainings = saved ? JSON.parse(saved) : [];
+        }
+
+        window.addEventListener('load', async function () {
+            let sessionUser = null;
+            try {
+                const response = await fetch(`${API_BASE}/auth/me`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                if (response.ok) {
+                    const payload = await response.json();
+                    sessionUser = payload.user || null;
+                }
+            } catch (error) {
+                console.error(error);
+            }
+
+            if (!sessionUser) {
                 document.getElementById('emptyState').style.display = 'block';
-                console.log('No login found - showing empty state');
                 return;
             }
 
             currentUser = {
-                username: lastLogin,
-                role: lastRole,
+                username: sessionUser.username,
+                role: sessionUser.role,
                 isLoggedIn: true
             };
 
-            const saved = localStorage.getItem('trainings');
-            if (saved) trainings = JSON.parse(saved);
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            localStorage.setItem('lastLogin', currentUser.username);
+            localStorage.setItem('lastRole', currentUser.role);
+
+            await loadTrainingsData();
 
             // Load parent's children from USERS data instead of localStorage
             if (currentUser.role === 'parent') {
@@ -853,8 +967,6 @@
                     }
                 }
             }
-
-            console.log('User loaded:', currentUser, 'Trainings:', trainings);
             updateUI();
         });
 
@@ -923,7 +1035,7 @@
             document.getElementById('profileAge').textContent = player.age || '--';
             document.getElementById('profileHeight').textContent = player.height || '--';
             document.getElementById('profileWeight').textContent = player.weight || '--';
-            
+
             // Dátum pripojenia sa do klubu
             if (player.joinedClub) {
                 const date = new Date(player.joinedClub);
@@ -931,16 +1043,16 @@
             }
         }
 
-        function createTraining() {
+        async function createTraining() {
             console.log('createTraining called');
-            
+
             const date = document.getElementById('trainingDate').value;
             const time = document.getElementById('trainingTime').value;
             const type = document.getElementById('trainingType').value;
             const duration = document.getElementById('trainingDuration').value;
             const category = document.getElementById('trainingCategory').value;
 
-            console.log('Form values:', {date, time, type, duration, category});
+            console.log('Form values:', { date, time, type, duration, category });
 
             const errorDiv = document.getElementById('trainingError');
             if (!date || !time || !type || !duration || !category) {
@@ -953,33 +1065,65 @@
                 errorDiv.style.display = 'none';
             }
 
-            // Get players for this category
-            const categoryPlayers = Object.values(PLAYERS).filter(p => p.category === category);
-            console.log('Category players:', categoryPlayers);
+            // Attendance data are now backend-driven; no local player dataset is required.
 
-            if (categoryPlayers.length === 0) {
-                alert('Nie sú žiadni hráči v tejto kategórii!');
-                return;
+            let training = null;
+
+            try {
+                const csrfToken = await ensureCsrfToken();
+                const response = await fetch(`${API_BASE}/trainings`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-csrf-token': csrfToken
+                    },
+                    body: JSON.stringify({
+                        date,
+                        time,
+                        type,
+                        duration: Number(duration),
+                        category
+                    })
+                });
+
+                if (!response.ok) {
+                    const payload = await response.json().catch(() => ({}));
+                    throw new Error(payload.message || 'Nepodarilo sa uložiť tréning na server.');
+                }
+
+                const payload = await response.json();
+                const item = payload.item;
+                training = {
+                    id: item.id,
+                    date: item.date,
+                    time: item.time,
+                    type: item.type,
+                    duration: item.duration,
+                    category: item.category,
+                    createdBy: item.createdBy,
+                    isActive: item.isActive,
+                    attendance: {}
+                };
+            } catch (error) {
+                console.error(error);
+                training = {
+                    id: Date.now().toString(),
+                    date, time, type, duration,
+                    category,
+                    createdBy: currentUser.username,
+                    isActive: true,
+                    attendance: {}
+                };
             }
 
-            const training = {
-                id: Date.now(),
-                date, time, type, duration, category,
-                createdBy: currentUser.username,
-                isActive: true,
-                attendance: {}
-            };
-
-            // Initialize attendance
-            categoryPlayers.forEach(player => {
-                training.attendance[training.id + '_' + player.username] = 'unknown';
-            });
+            // Attendance is managed in backend table TrainingAttendance.
 
             trainings.push(training);
             localStorage.setItem('trainings', JSON.stringify(trainings));
 
             console.log('Training created:', training);
-            
+
             // Clear form
             document.getElementById('trainingDate').value = '';
             document.getElementById('trainingTime').value = '';
@@ -1081,7 +1225,7 @@
                             </div>
                             <div class="training-footer">
                                 <div style="color:#2ecc71;">Účasť: ${percent}%</div>
-                                <button class="btn-action btn-delete" onclick="deleteTraining(${t.id})"><i class="fas fa-trash"></i> Odstrániť</button>
+                                <button class="btn-action btn-delete" onclick="deleteTraining('${t.id}')"><i class="fas fa-trash"></i> Odstrániť</button>
                             </div>
                         </div>
                     `;
@@ -1160,13 +1304,13 @@
                     if (t.isActive) {
                         html += `
                             <div class="button-group">
-                                <button class="btn-yes ${status === 'yes' ? 'active' : ''}" onclick="markAttendance(${t.id},'${person}','yes')">
+                                <button class="btn-yes ${status === 'yes' ? 'active' : ''}" onclick="markAttendance('${t.id}','${person}','yes')">
                                     ✓ Prídem
                                 </button>
-                                <button class="btn-no ${status === 'no' ? 'active' : ''}" onclick="markAttendance(${t.id},'${person}','no')">
+                                <button class="btn-no ${status === 'no' ? 'active' : ''}" onclick="markAttendance('${t.id}','${person}','no')">
                                     ✗ Neprídnem
                                 </button>
-                                <button class="btn-unknown ${status === 'unknown' ? 'active' : ''}" onclick="markAttendance(${t.id},'${person}','unknown')">
+                                <button class="btn-unknown ${status === 'unknown' ? 'active' : ''}" onclick="markAttendance('${t.id}','${person}','unknown')">
                                     ? Neviem
                                 </button>
                             </div>
@@ -1189,7 +1333,7 @@
         }
 
         function markAttendance(trainingId, person, status) {
-            const t = trainings.find(x => x.id === trainingId);
+            const t = trainings.find(x => String(x.id) === String(trainingId));
             if (!t || !t.isActive) return;
 
             t.attendance[trainingId + '_' + person] = status;
@@ -1201,7 +1345,7 @@
         }
 
         function startTraining(trainingId) {
-            const t = trainings.find(x => x.id === trainingId);
+            const t = trainings.find(x => String(x.id) === String(trainingId));
             if (t) {
                 // Move all 'unknown' to 'no' before closing
                 Object.keys(t.attendance).forEach(key => {
@@ -1249,7 +1393,7 @@
 
         function deleteTraining(trainingId) {
             if (confirm('Odstrániť?')) {
-                trainings = trainings.filter(x => x.id !== trainingId);
+                trainings = trainings.filter(x => String(x.id) !== String(trainingId));
                 localStorage.setItem('trainings', JSON.stringify(trainings));
                 refreshCoachRoster();
                 refreshPlayerTrainings();
@@ -1269,7 +1413,7 @@
             children.forEach(childUsername => {
                 // Get child's full name from PLAYERS if available
                 const childName = PLAYERS[childUsername] ? PLAYERS[childUsername].fullName : childUsername;
-                
+
                 html += `
                     <div class="child-item">
                         <span><i class="fas fa-child"></i> ${childName}</span>
@@ -1326,10 +1470,10 @@
         }
 
         // Logout Modal Logic
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const userDisplayBtn = document.getElementById('userDisplay');
             if (userDisplayBtn) {
-                userDisplayBtn.onclick = function(e) {
+                userDisplayBtn.onclick = function (e) {
                     e.preventDefault();
                     openLogoutModal();
                 };
@@ -1337,8 +1481,15 @@
             // Modal close on outside click
             const logoutModal = document.getElementById('logoutModal');
             if (logoutModal) {
-                logoutModal.addEventListener('click', function(e) {
+                logoutModal.addEventListener('click', function (e) {
                     if (e.target === this) closeLogoutModal();
+                });
+            }
+
+            const changePasswordModal = document.getElementById('changePasswordModal');
+            if (changePasswordModal) {
+                changePasswordModal.addEventListener('click', function (e) {
+                    if (e.target === this) closeChangePasswordModal();
                 });
             }
         });
@@ -1362,19 +1513,120 @@
                 document.body.style.overflow = 'auto';
             }
         }
-        function handleLogout() {
+
+        function openChangePasswordModal() {
+            closeLogoutModal();
+            const modal = document.getElementById('changePasswordModal');
+            const errorDiv = document.getElementById('changePasswordError');
+            if (errorDiv) {
+                errorDiv.style.display = 'none';
+                errorDiv.textContent = '';
+            }
+            if (modal) {
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeChangePasswordModal() {
+            const modal = document.getElementById('changePasswordModal');
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+
+            const newPasswordInput = document.getElementById('newPasswordInput');
+            const confirmPasswordInput = document.getElementById('confirmPasswordInput');
+            const errorDiv = document.getElementById('changePasswordError');
+
+            if (newPasswordInput) newPasswordInput.value = '';
+            if (confirmPasswordInput) confirmPasswordInput.value = '';
+            if (errorDiv) {
+                errorDiv.style.display = 'none';
+                errorDiv.textContent = '';
+            }
+        }
+        async function handleLogout() {
+            try {
+                const csrfToken = await ensureCsrfToken();
+                await fetch(`${API_BASE}/auth/logout`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-csrf-token': csrfToken
+                    }
+                });
+            } catch (error) {
+                console.error(error);
+            }
+
             localStorage.removeItem('lastLogin');
             localStorage.removeItem('lastRole');
+            localStorage.removeItem('currentUser');
             currentUser = { username: '', role: '', isLoggedIn: false };
             trainings = [];
             parentChildren = {};
             closeLogoutModal();
             location.reload();
         }
+
+        async function submitPasswordChange() {
+            const newPasswordInput = document.getElementById('newPasswordInput');
+            const confirmPasswordInput = document.getElementById('confirmPasswordInput');
+            const errorDiv = document.getElementById('changePasswordError');
+
+            const newPassword = newPasswordInput ? newPasswordInput.value : '';
+            const confirmPassword = confirmPasswordInput ? confirmPasswordInput.value : '';
+
+            if (!newPassword || newPassword.length < 8) {
+                if (errorDiv) {
+                    errorDiv.textContent = 'Heslo musí mať aspoň 8 znakov.';
+                    errorDiv.style.display = 'block';
+                }
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                if (errorDiv) {
+                    errorDiv.textContent = 'Heslá sa nezhodujú.';
+                    errorDiv.style.display = 'block';
+                }
+                return;
+            }
+
+            try {
+                const csrfToken = await ensureCsrfToken();
+                const response = await fetch(`${API_BASE}/auth/change-password`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-csrf-token': csrfToken
+                    },
+                    body: JSON.stringify({ newPassword })
+                });
+
+                const payload = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(payload.message || 'Zmena hesla zlyhala.');
+                }
+
+                alert('Heslo bolo úspešne zmenené.');
+                closeChangePasswordModal();
+            } catch (error) {
+                if (errorDiv) {
+                    errorDiv.textContent = error.message || 'Zmena hesla zlyhala.';
+                    errorDiv.style.display = 'block';
+                }
+            }
+        }
+
         function handleSwitchAccount() {
             handleLogout();
             // After reload, login modal should show on main page
         }
     </script>
 </body>
+
 </html>

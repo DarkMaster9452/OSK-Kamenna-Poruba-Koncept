@@ -1,0 +1,176 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  coach
+  player
+  parent
+}
+
+enum TrainingType {
+  technical
+  tactical
+  physical
+  friendly
+}
+
+enum TrainingCategory {
+  pripravky
+  ziaci
+  dorastenci
+  adults_young
+  adults_pro
+}
+
+enum PlayerCategory {
+  pripravka_u9
+  pripravka_u11
+  ziaci
+  dorastenci
+  adults_young
+  adults_pro
+}
+
+enum TargetGroup {
+  all
+  players
+  parents
+  coaches
+}
+
+enum AttendanceStatus {
+  yes
+  no
+  unknown
+}
+
+enum AuditEntityType {
+  auth
+  user
+  training
+  attendance
+  announcement
+  poll
+}
+
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  role         Role
+  playerCategory PlayerCategory?
+  passwordHash String
+  lastPasswordChangeAt DateTime?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  trainingsCreated     Training[]     @relation("TrainingsCreatedBy")
+  announcementsCreated Announcement[] @relation("AnnouncementsCreatedBy")
+  pollsCreated         Poll[]         @relation("PollsCreatedBy")
+  pollVotes            PollVote[]     @relation("PollVotesByUser")
+  attendanceUpdates    TrainingAttendance[] @relation("AttendanceUpdatedBy")
+  auditLogs            AuditLog[]     @relation("AuditActor")
+}
+
+model Training {
+  id        String           @id @default(cuid())
+  date      String
+  time      String
+  type      TrainingType
+  duration  Int
+  category  TrainingCategory
+  isActive  Boolean          @default(true)
+  createdAt DateTime         @default(now())
+
+  createdById String
+  createdBy   User @relation("TrainingsCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  attendances TrainingAttendance[]
+
+  @@index([createdAt])
+}
+
+model TrainingAttendance {
+  id           String           @id @default(cuid())
+  playerUsername String
+  status       AttendanceStatus @default(unknown)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  trainingId String
+  training   Training @relation(fields: [trainingId], references: [id], onDelete: Cascade)
+
+  updatedById String?
+  updatedBy   User? @relation("AttendanceUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@unique([trainingId, playerUsername])
+  @@index([trainingId])
+  @@index([playerUsername])
+}
+
+model Announcement {
+  id        String      @id @default(cuid())
+  title     String
+  message   String
+  target    TargetGroup
+  playerCategory PlayerCategory?
+  important Boolean     @default(false)
+  createdAt DateTime    @default(now())
+
+  createdById String
+  createdBy   User @relation("AnnouncementsCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+
+  @@index([createdAt])
+}
+
+model Poll {
+  id        String      @id @default(cuid())
+  question  String
+  options   String[]
+  target    TargetGroup
+  playerCategory PlayerCategory?
+  active    Boolean     @default(true)
+  createdAt DateTime    @default(now())
+
+  createdById String
+  createdBy   User @relation("PollsCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+
+  votes PollVote[]
+
+  @@index([createdAt])
+}
+
+model PollVote {
+  id        String   @id @default(cuid())
+  optionIdx Int
+  createdAt DateTime @default(now())
+
+  pollId String
+  poll   Poll @relation(fields: [pollId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User @relation("PollVotesByUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([pollId, userId])
+  @@index([pollId])
+  @@index([userId])
+}
+
+model AuditLog {
+  id         String          @id @default(cuid())
+  action     String
+  entityType AuditEntityType
+  entityId   String?
+  details    Json?
+  createdAt  DateTime        @default(now())
+
+  actorUserId String?
+  actorUser   User? @relation("AuditActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([entityType])
+}

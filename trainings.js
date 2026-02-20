@@ -8,6 +8,54 @@
 // - let playerAttendance
 // - let parentChildren
 
+const PLAYER_DIRECTORY = {};
+
+const PARENT_CHILDREN_MAP = {};
+
+const PLAYER_NAME_MAP = {};
+
+function getApiBase() {
+    if (typeof API_BASE === 'string' && API_BASE.length > 0) {
+        return API_BASE;
+    }
+    return `${window.location.protocol}//${window.location.hostname}:4000/api`;
+}
+
+function getPlayerUsernamesByCategory(category) {
+    return PLAYER_DIRECTORY[category] || [];
+}
+
+function getParentChildrenUsernames(username) {
+    return PARENT_CHILDREN_MAP[username] || [];
+}
+
+async function loadTrainingsFromApi() {
+    const response = await fetch(`${getApiBase()}/trainings`, {
+        method: 'GET',
+        credentials: 'include'
+    });
+
+    if (!response.ok) {
+        throw new Error('Nepodarilo sa načítať tréningy z backendu.');
+    }
+
+    const payload = await response.json();
+    const items = Array.isArray(payload.items) ? payload.items : [];
+
+    return items.map((item) => ({
+        id: item.id,
+        date: item.date,
+        time: item.time,
+        type: item.type,
+        duration: item.duration,
+        category: item.category,
+        createdBy: item.createdBy,
+        createdDate: item.createdAt,
+        isActive: item.isActive,
+        attendance: {}
+    }));
+}
+
 // Initialize training HTML structure
 function initializeTrainingView() {
     const trainingContainer = document.getElementById('trainingView');
@@ -95,11 +143,16 @@ function initializeTrainingView() {
     `;
 }
 
-// Load training data from localStorage
-function loadTrainingData() {
-    const saved = localStorage.getItem('trainings');
-    if (saved) {
-        trainings = JSON.parse(saved);
+// Load training data from backend API (fallback to localStorage)
+async function loadTrainingData() {
+    try {
+        trainings = await loadTrainingsFromApi();
+    } catch (error) {
+        console.error(error);
+        const saved = localStorage.getItem('trainings');
+        if (saved) {
+            trainings = JSON.parse(saved);
+        }
     }
     
     const savedAttendance = localStorage.getItem('playerAttendance');
@@ -107,22 +160,24 @@ function loadTrainingData() {
         playerAttendance = JSON.parse(savedAttendance);
     }
 
-    // Load parent's children from database.js instead of localStorage
+    // Load parent's children from local mapping helper
     if (currentUser && currentUser.role === 'parent') {
         parentChildren = {}; // Reset to ensure clean state
-        if (typeof USERS !== 'undefined') {
-            const parentUser = USERS[currentUser.username];
-            if (parentUser && parentUser.children) {
-                parentUser.children.forEach(childUsername => {
-                    parentChildren[childUsername] = true;
-                });
-            }
-        }
+        const children = getParentChildrenUsernames(currentUser.username);
+        children.forEach((childUsername) => {
+            parentChildren[childUsername] = true;
+        });
+    }
+
+    if (currentUser && currentUser.role === 'coach') {
+        refreshCoachRoster();
+    } else if (currentUser && (currentUser.role === 'player' || currentUser.role === 'parent')) {
+        refreshPlayerTrainings();
     }
 }
 
 // Create training (Coach only)
-function createTraining() {
+async function createTraining() {
     console.log('createTraining called, currentUser:', currentUser);
     
     if (!currentUser || !currentUser.username) {
@@ -141,23 +196,65 @@ function createTraining() {
         return;
     }
 
-    const training = {
-        id: Date.now(),
-        date: date,
-        time: time,
-        type: type,
-        duration: duration,
-        category: category,
-        createdBy: currentUser.username,
-        createdDate: new Date().toISOString(),
-        isActive: true,
-        attendance: {}
-    };
+    let training = null;
+
+    try {
+        const csrfToken = typeof ensureCsrfToken === 'function' ? await ensureCsrfToken() : null;
+        const response = await fetch(`${getApiBase()}/trainings`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(csrfToken ? { 'x-csrf-token': csrfToken } : {})
+            },
+            body: JSON.stringify({
+                date,
+                time,
+                type,
+                duration: Number(duration),
+                category
+            })
+        });
+
+        if (!response.ok) {
+            const payload = await response.json().catch(() => ({}));
+            throw new Error(payload.message || 'Nepodarilo sa vytvoriť tréning na serveri.');
+        }
+
+        const payload = await response.json();
+        const item = payload.item;
+        training = {
+            id: item.id,
+            date: item.date,
+            time: item.time,
+            type: item.type,
+            duration: item.duration,
+            category: item.category,
+            createdBy: item.createdBy,
+            createdDate: item.createdAt,
+            isActive: item.isActive,
+            attendance: {}
+        };
+    } catch (error) {
+        console.error(error);
+        training = {
+            id: Date.now().toString(),
+            date,
+            time,
+            type,
+            duration: Number(duration),
+            category,
+            createdBy: currentUser.username,
+            createdDate: new Date().toISOString(),
+            isActive: true,
+            attendance: {}
+        };
+    }
 
     // Initialize all players in this category with "unknown" status
-    const categoryPlayers = getPlayersByCategory(category);
-    categoryPlayers.forEach(player => {
-        const key = training.id + '_' + player.username;
+    const categoryPlayers = getPlayerUsernamesByCategory(category);
+    categoryPlayers.forEach((playerUsername) => {
+        const key = training.id + '_' + playerUsername;
         training.attendance[key] = 'unknown';
     });
 
@@ -292,10 +389,7 @@ function updateChildrenList() {
     
     let html = '';
     children.forEach((childUsername, index) => {
-        // Get child's full name from PLAYERS if available
-        const childName = (typeof PLAYERS !== 'undefined' && PLAYERS[childUsername]) 
-            ? PLAYERS[childUsername].fullName 
-            : childUsername;
+        const childName = PLAYER_NAME_MAP[childUsername] || childUsername;
         
         html += `
             <div style="background: rgba(255, 255, 255, 0.05); padding: 12px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">

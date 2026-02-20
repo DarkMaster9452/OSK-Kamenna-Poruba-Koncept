@@ -174,12 +174,20 @@
             align-items: center;
         }
 
+        nav li {
+            flex-shrink: 0;
+        }
+
         nav a {
             color: white;
             text-decoration: none;
             font-weight: 500;
             transition: color 0.3s;
             position: relative;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
         nav a:hover {
@@ -220,6 +228,12 @@
             border-radius: 5px;
             transition: background 0.3s;
             font-weight: bold;
+            display: inline-block;
+            max-width: 160px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            vertical-align: middle;
         }
 
         .login-btn:hover {
@@ -1410,7 +1424,8 @@
                                     456 789</p>
                                 <p style="margin-bottom: 20px;"><i class="fas fa-envelope"
                                         style="color: #ffd700; width: 30px;"></i>
-                                    <strong>Email:</strong><br>info@oskamennaoruba.sk</p>
+                                    <strong>Email:</strong><br>info@oskamennaoruba.sk
+                                </p>
                                 <p><i class="fas fa-clock" style="color: #ffd700; width: 30px;"></i> <strong>Pracovná
                                         doba:</strong><br>Po-Pia: 9:00 - 18:00</p>
                             </div>
@@ -1499,8 +1514,6 @@
                 <a href="#"
                     style="display: block; text-align: center; color: #ffd700; text-decoration: none; font-size: 14px;">Zabudli
                     ste heslo?</a>
-                <a>milan_kuba,jozef_adamcik,jan_klimo
-                    heslo123</a>
             </form>
             <div id="loginError"
                 style="display:none; color:#e74c3c; background:rgba(231,76,60,0.08); border:1px solid #e74c3c; border-radius:5px; padding:10px; margin-bottom:10px; text-align:center; font-weight:bold; animation: shake 0.3s;">
@@ -1521,8 +1534,46 @@
             </div>
             <button class="btn btn-primary" style="width:100%;margin-bottom:10px;background:#e74c3c;color:white;"
                 onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Odhlásiť sa</button>
-            <button class="btn btn-secondary" style="width:100%;background:#ffd700;color:#003399;"
+            <button class="btn btn-secondary" style="width:100%;margin-bottom:10px;background:#ffd700;color:#003399;"
                 onclick="handleSwitchAccount()"><i class="fas fa-user-switch"></i> Prepnúť účet</button>
+            <button class="btn btn-secondary"
+                style="width:fit-content;display:flex;margin:0 auto 0;padding:7px 12px;font-size:12px;background:#1a5ccc;color:#fff;"
+                onclick="openChangePasswordModal()"><i class="fas fa-key"></i> Zmeniť heslo</button>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="changePasswordModal" class="modal">
+        <div class="modal-content" style="max-width:420px;">
+            <div class="modal-header">
+                <h2 style="font-size:26px;">Zmena hesla</h2>
+                <button class="close-btn" onclick="closeChangePasswordModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div style="margin: 20px 0; text-align: left; font-size:16px;">
+                <div style="margin-bottom: 12px;">
+                    <label for="newPasswordInput"
+                        style="display:block;font-weight:bold;margin-bottom:6px;font-size:15px;">Nové
+                        heslo</label>
+                    <input id="newPasswordInput" type="password" minlength="8"
+                        style="width:100%;padding:12px;border:1px solid #ccc;border-radius:5px;font-size:16px;"
+                        placeholder="Min. 8 znakov">
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label for="confirmPasswordInput"
+                        style="display:block;font-weight:bold;margin-bottom:6px;font-size:15px;">Potvrdiť
+                        heslo</label>
+                    <input id="confirmPasswordInput" type="password" minlength="8"
+                        style="width:100%;padding:12px;border:1px solid #ccc;border-radius:5px;font-size:16px;"
+                        placeholder="Zopakujte heslo">
+                </div>
+                <div id="changePasswordError" style="display:none;color:#e74c3c;font-weight:bold;font-size:15px;"></div>
+            </div>
+            <button class="btn btn-secondary"
+                style="width:100%;margin-bottom:10px;background:#1a5ccc;color:#fff;font-size:15px;padding:12px 14px;"
+                onclick="submitPasswordChange()"><i class="fas fa-save"></i> Uložiť nové heslo</button>
+            <button class="btn btn-secondary"
+                style="width:100%;background:#999;color:#fff;font-size:15px;padding:12px 14px;"
+                onclick="closeChangePasswordModal()">Zrušiť</button>
         </div>
     </div>
 
@@ -1567,7 +1618,6 @@
         </div>
     </footer>
 
-    <script src="database.js"></script>
     <script src="trainings.js"></script>
     <script>
         // Zobraziť tlačidlo 'Karta hráča' len pre coachov
@@ -1615,6 +1665,65 @@
             role: null,
             isLoggedIn: false
         };
+        const PLAYERS = {};
+        const API_BASE = `${window.location.protocol}//${window.location.hostname}:4000/api`;
+        let csrfTokenCache = null;
+
+        async function ensureCsrfToken() {
+            if (csrfTokenCache) {
+                return csrfTokenCache;
+            }
+
+            const response = await fetch(`${API_BASE}/csrf-token`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                throw new Error('Nepodarilo sa načítať CSRF token.');
+            }
+
+            const payload = await response.json();
+            csrfTokenCache = payload.csrfToken;
+            return csrfTokenCache;
+        }
+
+        async function fetchSessionUser() {
+            const response = await fetch(`${API_BASE}/auth/me`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                return null;
+            }
+
+            const payload = await response.json();
+            return payload.user || null;
+        }
+
+        async function syncCurrentUserFromSession() {
+            const user = await fetchSessionUser();
+            if (!user) {
+                currentUser = { username: null, role: null, isLoggedIn: false };
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('lastLogin');
+                localStorage.removeItem('lastRole');
+                updateLoginButtonText();
+                return;
+            }
+
+            currentUser = {
+                username: user.username,
+                role: user.role,
+                isLoggedIn: true
+            };
+
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            localStorage.setItem('lastLogin', currentUser.username);
+            localStorage.setItem('lastRole', currentUser.role);
+            updateLoginButtonText();
+        }
 
         // ====== FILTROVANIE A ZOBRAZENIE HRÁČOV ======
         let currentPlayerFilter = 'pripravky';
@@ -1718,12 +1827,16 @@
             const infoNavLink = document.getElementById('infoNavLink');
             const matchesNavLink = document.getElementById('matchesNavLink');
             if (currentUser.isLoggedIn) {
-                loginBtn.textContent = currentUser.username;
+                const fullUsername = currentUser.username || '';
+                const shortUsername = fullUsername.length > 14 ? `${fullUsername.slice(0, 14)}…` : fullUsername;
+                loginBtn.textContent = shortUsername;
+                loginBtn.title = fullUsername;
                 trainingNavLink.style.display = 'block';
                 infoNavLink.style.display = 'block';
                 matchesNavLink.style.display = 'block';
             } else {
                 loginBtn.textContent = 'Prihlásiť sa';
+                loginBtn.title = '';
                 trainingNavLink.style.display = 'none';
                 infoNavLink.style.display = 'none';
                 // keep matchesNavLink visible for all users (including guests)
@@ -1828,14 +1941,112 @@
             }
         }
 
-        function handleLogout() {
-            // Clear user session
+        function openChangePasswordModal() {
+            closeLogoutModal();
+            const modal = document.getElementById('changePasswordModal');
+            const errorDiv = document.getElementById('changePasswordError');
+            if (errorDiv) {
+                errorDiv.style.display = 'none';
+                errorDiv.textContent = '';
+            }
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeChangePasswordModal() {
+            const modal = document.getElementById('changePasswordModal');
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+
+            const newPasswordInput = document.getElementById('newPasswordInput');
+            const confirmPasswordInput = document.getElementById('confirmPasswordInput');
+            const errorDiv = document.getElementById('changePasswordError');
+
+            if (newPasswordInput) newPasswordInput.value = '';
+            if (confirmPasswordInput) confirmPasswordInput.value = '';
+            if (errorDiv) {
+                errorDiv.style.display = 'none';
+                errorDiv.textContent = '';
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                const csrfToken = await ensureCsrfToken();
+                await fetch(`${API_BASE}/auth/logout`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-csrf-token': csrfToken
+                    }
+                });
+            } catch (error) {
+                console.error(error);
+            }
+
             currentUser = { username: null, role: null, isLoggedIn: false };
             localStorage.removeItem('currentUser');
             localStorage.removeItem('lastLogin');
             localStorage.removeItem('lastRole');
             closeLogoutModal();
             updateLoginButtonText();
+            showCoachPlayerCardButton();
+        }
+
+        async function submitPasswordChange() {
+            const newPasswordInput = document.getElementById('newPasswordInput');
+            const confirmPasswordInput = document.getElementById('confirmPasswordInput');
+            const errorDiv = document.getElementById('changePasswordError');
+
+            const newPassword = newPasswordInput ? newPasswordInput.value : '';
+            const confirmPassword = confirmPasswordInput ? confirmPasswordInput.value : '';
+
+            if (!newPassword || newPassword.length < 8) {
+                if (errorDiv) {
+                    errorDiv.textContent = 'Heslo musí mať aspoň 8 znakov.';
+                    errorDiv.style.display = 'block';
+                }
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                if (errorDiv) {
+                    errorDiv.textContent = 'Heslá sa nezhodujú.';
+                    errorDiv.style.display = 'block';
+                }
+                return;
+            }
+
+            try {
+                const csrfToken = await ensureCsrfToken();
+                const response = await fetch(`${API_BASE}/auth/change-password`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-csrf-token': csrfToken
+                    },
+                    body: JSON.stringify({ newPassword })
+                });
+
+                const payload = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(payload.message || 'Zmena hesla zlyhala.');
+                }
+
+                alert('Heslo bolo úspešne zmenené.');
+                closeChangePasswordModal();
+            } catch (error) {
+                if (errorDiv) {
+                    errorDiv.textContent = error.message || 'Zmena hesla zlyhala.';
+                    errorDiv.style.display = 'block';
+                }
+            }
         }
 
         function handleSwitchAccount() {
@@ -1850,6 +2061,15 @@
                 logoutModal.addEventListener('click', function (e) {
                     if (e.target === this) {
                         closeLogoutModal();
+                    }
+                });
+            }
+
+            const changePasswordModal = document.getElementById('changePasswordModal');
+            if (changePasswordModal) {
+                changePasswordModal.addEventListener('click', function (e) {
+                    if (e.target === this) {
+                        closeChangePasswordModal();
                     }
                 });
             }
@@ -1871,7 +2091,7 @@
         }
 
         // Handle Login
-        function handleLogin(event) {
+        async function handleLogin(event) {
             event.preventDefault();
             const username = document.getElementById('username').value;
             const userRole = document.getElementById('userRole').value;
@@ -1882,60 +2102,87 @@
                 return;
             }
 
-            // Validate with database
             const password = document.getElementById('password').value;
             const errorDiv = document.getElementById('loginError');
-            const authResult = authenticateUser(username, password);
-            if (!authResult.success) {
-                errorDiv.textContent = 'Zlé meno alebo heslo!';
-                errorDiv.style.display = 'block';
-                errorDiv.style.animation = 'shake 0.3s';
-                setTimeout(() => { errorDiv.style.animation = ''; }, 400);
-                return;
-            } else {
-                errorDiv.style.display = 'none';
-            }
 
-            const actualRole = authResult.user.role;
-            if (userRole !== actualRole) {
-                errorDiv.textContent = `Tento účet má rolu: ${getRoleLabel(actualRole)}.`;
-                errorDiv.style.display = 'block';
-                errorDiv.style.animation = 'shake 0.3s';
-                setTimeout(() => { errorDiv.style.animation = ''; }, 400);
-                return;
-            }
+            try {
+                const csrfToken = await ensureCsrfToken();
+                const loginResponse = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-csrf-token': csrfToken
+                    },
+                    body: JSON.stringify({ username, password })
+                });
 
-            // Set current user
-            currentUser = {
-                username: username,
-                role: actualRole,
-                isLoggedIn: true
-            };
-
-            // Save to localStorage for cross-page access (for coach-only pages)
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            localStorage.setItem('lastLogin', username);
-            localStorage.setItem('lastRole', actualRole);
-            console.log('Saved to localStorage:', username, actualRole);
-
-            // Load parent's children from database.js if parent
-            if (actualRole === 'parent') {
-                parentChildren = {}; // Reset to ensure clean state
-                if (typeof USERS !== 'undefined') {
-                    const parentUser = USERS[username];
-                    if (parentUser && parentUser.children) {
-                        parentUser.children.forEach(childUsername => {
-                            parentChildren[childUsername] = true;
-                        });
+                if (!loginResponse.ok) {
+                    if (loginResponse.status === 401) {
+                        throw new Error('AUTH_INVALID');
                     }
-                }
-            }
 
-            // Close modal and refresh UI
-            closeLoginModal();
-            document.getElementById('loginForm').reset();
-            updateLoginButtonText();
-            showCoachPlayerCardButton();
+                    if (loginResponse.status === 403) {
+                        throw new Error('CSRF_FAILED');
+                    }
+
+                    throw new Error('LOGIN_REQUEST_FAILED');
+                }
+
+                const loginPayload = await loginResponse.json();
+                const actualRole = loginPayload.user.role;
+
+                if (userRole !== actualRole) {
+                    errorDiv.textContent = 'Prihlásenie zlyhalo. Skontrolujte údaje a skúste znova.';
+                    errorDiv.style.display = 'block';
+                    errorDiv.style.animation = 'shake 0.3s';
+                    setTimeout(() => { errorDiv.style.animation = ''; }, 400);
+
+                    const roleCsrf = await ensureCsrfToken();
+                    await fetch(`${API_BASE}/auth/logout`, {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-csrf-token': roleCsrf
+                        }
+                    });
+                    return;
+                }
+
+                errorDiv.style.display = 'none';
+
+                currentUser = {
+                    username,
+                    role: actualRole,
+                    isLoggedIn: true
+                };
+
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                localStorage.setItem('lastLogin', username);
+                localStorage.setItem('lastRole', actualRole);
+
+                if (actualRole === 'parent') {
+                    parentChildren = {};
+                    const children = typeof getParentChildrenUsernames === 'function'
+                        ? getParentChildrenUsernames(username)
+                        : [];
+                    children.forEach((childUsername) => {
+                        parentChildren[childUsername] = true;
+                    });
+                }
+
+                closeLoginModal();
+                document.getElementById('loginForm').reset();
+                updateLoginButtonText();
+                showCoachPlayerCardButton();
+            } catch (error) {
+                errorDiv.textContent = 'Prihlásenie zlyhalo. Skontrolujte údaje a skúste znova.';
+                errorDiv.style.display = 'block';
+                errorDiv.style.animation = 'shake 0.3s';
+                setTimeout(() => { errorDiv.style.animation = ''; }, 400);
+                console.error(error);
+            }
         }
 
         // Get role label in Slovak
@@ -1997,19 +2244,19 @@
         });
 
         // Load last login if available
-        window.addEventListener('load', function () {
-            const lastLogin = localStorage.getItem('lastLogin');
-            const lastRole = localStorage.getItem('lastRole');
-            if (lastLogin && lastRole) {
+        window.addEventListener('load', async function () {
+            try {
+                await syncCurrentUserFromSession();
+            } catch (error) {
+                console.error(error);
                 currentUser = {
-                    username: lastLogin,
-                    role: lastRole,
-                    isLoggedIn: true
+                    username: null,
+                    role: null,
+                    isLoggedIn: false
                 };
-                // Synchronizuj aj do localStorage pre coach-only stránky
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 updateLoginButtonText();
             }
+
             // Initialize players stats
             initializePlayers();
             showCoachPlayerCardButton();
