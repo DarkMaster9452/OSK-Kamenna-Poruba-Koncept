@@ -127,3 +127,41 @@ Citlivé dáta (účty, roly, oznamy, ankety, tréningy a účasť) sú spravova
 - projekt je funkčný MVP s backend autentifikáciou a Neon perzistenciou
 - verejné časti webu fungujú ako prezentačný web klubu
 - interné moduly (tréningy, udalosti, ankety) sú riešené cez API
+
+## 10) Deploy: Render + Vercel (Neon už máš)
+
+Táto verzia repozitára je pripravená na:
+
+- **Backend na Render** cez `render.yaml`
+- **Frontend na Vercel** cez `vercel.json` rewrite `/api/* -> Render backend`
+
+### Kroky
+
+1. **Render (backend)**
+
+- v Render vyber **Blueprint deploy** z tohto repozitára (použije `render.yaml`)
+- nastav secrety:
+  - `DATABASE_URL` = Neon connection string
+  - `JWT_ACCESS_SECRET` = dlhý náhodný secret
+- po deploy si skontroluj health: `https://<render-service>.onrender.com/api/health`
+
+2. **Vercel (frontend)**
+
+- importni ten istý repozitár do Vercel (root projekt)
+- po prvom deploy uprav v `vercel.json` hodnotu `destination` na reálnu Render URL, ak sa líši od:
+  - `https://osk-kamenna-poruba-backend.onrender.com`
+- redeployni frontend
+
+3. **CORS + cookie doména**
+
+- v Render env nastav `FRONTEND_ORIGIN` na tvoju Vercel doménu (napr. `https://your-app.vercel.app`)
+- pre produkciu nechaj `COOKIE_SECURE=true`
+
+### Poznámka
+
+Frontend už používa:
+
+- lokálne: `http://localhost:4000/api`
+- produkčne: `/api` (proxy cez Vercel rewrite)
+
+Takto zostane login/cookie flow funkčný bez hardcoded produkčného backend hostu v HTML.

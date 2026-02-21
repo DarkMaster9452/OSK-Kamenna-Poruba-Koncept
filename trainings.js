@@ -18,7 +18,11 @@ function getApiBase() {
     if (typeof API_BASE === 'string' && API_BASE.length > 0) {
         return API_BASE;
     }
-    return `${window.location.protocol}//${window.location.hostname}:4000/api`;
+    const host = window.location.hostname;
+    if (host === 'localhost' || host === '127.0.0.1') {
+        return 'http://localhost:4000/api';
+    }
+    return '/api';
 }
 
 function getPlayerUsernamesByCategory(category) {
