@@ -369,7 +369,8 @@
             try {
                 const res = await fetch(`${API_BASE}/users`, { credentials: 'include' });
                 if (!res.ok) {
-                    throw new Error('Načítanie účtov zlyhalo.');
+                    const payload = await res.json().catch(() => ({}));
+                    throw new Error(payload.message || `Načítanie účtov zlyhalo (HTTP ${res.status}).`);
                 }
                 const data = await res.json();
                 users = data.items || [];

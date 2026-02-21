@@ -9,6 +9,15 @@ function isMissingUserEmailColumnError(error) {
   return column.includes('email');
 }
 
+function isUnknownUserEmailFieldError(error) {
+  const message = String(error?.message || '').toLowerCase();
+  return message.includes('unknown field') && message.includes('email') && message.includes('user');
+}
+
+function shouldFallbackWithoutEmail(error) {
+  return isMissingUserEmailColumnError(error) || isUnknownUserEmailFieldError(error);
+}
+
 function withNullEmail(items) {
   return items.map((item) => ({
     ...item,
@@ -44,7 +53,7 @@ async function listUsersForManagement() {
       }
     });
   } catch (error) {
-    if (!isMissingUserEmailColumnError(error)) {
+    if (!shouldFallbackWithoutEmail(error)) {
       throw error;
     }
 
@@ -81,7 +90,7 @@ async function createManagedUser(input) {
       }
     });
   } catch (error) {
-    if (!isMissingUserEmailColumnError(error)) {
+    if (!shouldFallbackWithoutEmail(error)) {
       throw error;
     }
 
@@ -123,7 +132,7 @@ async function setUserActiveStatus(id, isActive) {
       }
     });
   } catch (error) {
-    if (!isMissingUserEmailColumnError(error)) {
+    if (!shouldFallbackWithoutEmail(error)) {
       throw error;
     }
 
@@ -168,7 +177,7 @@ async function resetUserPasswordByAdmin(id, passwordHash) {
       }
     });
   } catch (error) {
-    if (!isMissingUserEmailColumnError(error)) {
+    if (!shouldFallbackWithoutEmail(error)) {
       throw error;
     }
 
@@ -216,7 +225,7 @@ async function updateUserRoleAndCategory(id, role, playerCategory) {
       }
     });
   } catch (error) {
-    if (!isMissingUserEmailColumnError(error)) {
+    if (!shouldFallbackWithoutEmail(error)) {
       throw error;
     }
 
