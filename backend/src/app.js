@@ -16,6 +16,25 @@ const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
 
+function escapeForRegex(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function isOriginAllowed(origin, allowedOrigins) {
+  if (allowedOrigins.includes(origin)) {
+    return true;
+  }
+
+  return allowedOrigins.some((allowed) => {
+    if (!allowed.includes('*')) {
+      return false;
+    }
+
+    const wildcardPattern = '^' + allowed.split('*').map(escapeForRegex).join('.*') + '$';
+    return new RegExp(wildcardPattern).test(origin);
+  });
+}
+
 app.use(helmet());
 app.use(
   cors({
@@ -24,7 +43,7 @@ app.use(
         return callback(null, true);
       }
 
-      if (env.frontendOrigins.includes(origin)) {
+      if (isOriginAllowed(origin, env.frontendOrigins)) {
         return callback(null, true);
       }
 
