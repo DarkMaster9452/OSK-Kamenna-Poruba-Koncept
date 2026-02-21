@@ -279,8 +279,10 @@
 
     <div class="modal" id="editProfileModal">
         <div class="modal-box">
-            <h3>Upraviť rolu a kategóriu</h3>
+            <h3>Upraviť profil účtu</h3>
             <p id="editUserLabel"></p>
+            <label for="editEmailInput">Email</label>
+            <input id="editEmailInput" type="email" placeholder="meno@domena.sk" required />
             <label for="editRoleSelect">Rola</label>
             <select id="editRoleSelect">
                 <option value="admin">Admin</option>
@@ -456,7 +458,7 @@
                         <td>${categoryLabel(user.playerCategory)}</td>
                         <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                         <td class="actions">
-                            <button class="btn btn-secondary" onclick="openEditProfileModal('${user.id}','${user.username}','${user.role}','${user.playerCategory || ''}','${user.shirtNumber || ''}')">Upraviť rolu</button>
+                            <button class="btn btn-secondary" onclick="openEditProfileModal('${user.id}','${user.username}','${user.email || ''}','${user.role}','${user.playerCategory || ''}','${user.shirtNumber || ''}')">Upraviť profil</button>
                             <button class="btn btn-secondary" onclick="openPasswordModal('${user.id}','${user.username}')">Reset hesla</button>
                             <button class="btn ${toggleClass}" onclick="toggleUserStatus('${user.id}', ${user.isActive})">${toggleLabel}</button>
                         </td>
@@ -534,11 +536,12 @@
             document.getElementById('passwordModal').classList.remove('active');
         }
 
-        function openEditProfileModal(userId, username, role, playerCategory, shirtNumber) {
+        function openEditProfileModal(userId, username, email, role, playerCategory, shirtNumber) {
             editUserId = userId;
             editUsername = username;
 
             document.getElementById('editUserLabel').textContent = `Používateľ: ${username}`;
+            document.getElementById('editEmailInput').value = email || '';
             document.getElementById('editRoleSelect').value = role;
             document.getElementById('editCategorySelect').value = playerCategory || '';
             document.getElementById('editShirtNumberInput').value = shirtNumber || '';
@@ -570,9 +573,15 @@
         }
 
         async function submitUserProfileUpdate() {
+            const email = document.getElementById('editEmailInput').value.trim();
             const role = document.getElementById('editRoleSelect').value;
             const playerCategory = document.getElementById('editCategorySelect').value || null;
             const shirtNumber = parseShirtNumber(document.getElementById('editShirtNumberInput').value);
+
+            if (!email) {
+                message('editProfileMessage', 'Email je povinný.', 'error');
+                return;
+            }
 
             if (Number.isNaN(shirtNumber)) {
                 message('editProfileMessage', 'Číslo dresu musí byť celé číslo od 1 do 99.', 'error');
@@ -594,6 +603,7 @@
                         'x-csrf-token': token
                     },
                     body: JSON.stringify({
+                        email,
                         role,
                         playerCategory: role === 'player' ? playerCategory : null,
                         shirtNumber: role === 'player' ? shirtNumber : null
@@ -601,13 +611,13 @@
                 });
 
                 const payload = await res.json().catch(() => ({}));
-                if (!res.ok) throw new Error(payload.message || 'Úprava roly/kategórie zlyhala.');
+                if (!res.ok) throw new Error(payload.message || 'Úprava profilu zlyhala.');
 
                 message('editProfileMessage', `Profil používateľa ${editUsername} bol upravený.`, 'success');
                 await fetchUsers();
                 setTimeout(() => closeEditProfileModal(), 700);
             } catch (err) {
-                message('editProfileMessage', err.message || 'Úprava roly/kategórie zlyhala.', 'error');
+                message('editProfileMessage', err.message || 'Úprava profilu zlyhala.', 'error');
             }
         }
 

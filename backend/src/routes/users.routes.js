@@ -45,6 +45,7 @@ const userStatusSchema = z.object({
 });
 
 const updateUserProfileSchema = z.object({
+  email: z.string().email().max(254),
   role: z.enum(['admin', 'coach', 'player', 'parent']),
   playerCategory: playerCategorySchema.nullable().optional(),
   shirtNumber: shirtNumberSchema.nullable().optional()
@@ -157,7 +158,7 @@ router.patch('/:id/profile', validateBody(updateUserProfileSchema), async (req, 
     return res.status(404).json({ message: 'Používateľ neexistuje.' });
   }
 
-  const { role, playerCategory, shirtNumber } = req.body;
+  const { email, role, playerCategory, shirtNumber } = req.body;
 
   if (role === 'player' && !playerCategory) {
     return res.status(400).json({ message: 'Pre hráča je povinná kategória.' });
@@ -177,6 +178,7 @@ router.patch('/:id/profile', validateBody(updateUserProfileSchema), async (req, 
 
   const updated = await updateUserRoleAndCategory(
     req.params.id,
+    email.trim().toLowerCase(),
     role,
     role === 'player' ? playerCategory : null,
     role === 'player' ? (shirtNumber ?? null) : null

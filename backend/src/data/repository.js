@@ -14,14 +14,39 @@ function isUnknownUserEmailFieldError(error) {
   return message.includes('unknown field') && message.includes('email') && message.includes('user');
 }
 
+function isMissingUserShirtNumberColumnError(error) {
+  if (!error || error.code !== 'P2022') {
+    return false;
+  }
+
+  const column = String(error.meta?.column || '').toLowerCase();
+  return column.includes('shirtnumber');
+}
+
+function isUnknownUserShirtNumberFieldError(error) {
+  const message = String(error?.message || '').toLowerCase();
+  return message.includes('unknown field') && message.includes('shirtnumber') && message.includes('user');
+}
+
 function shouldFallbackWithoutEmail(error) {
   return isMissingUserEmailColumnError(error) || isUnknownUserEmailFieldError(error);
+}
+
+function shouldFallbackWithoutShirtNumber(error) {
+  return isMissingUserShirtNumberColumnError(error) || isUnknownUserShirtNumberFieldError(error);
 }
 
 function withNullEmail(items) {
   return items.map((item) => ({
     ...item,
     email: null
+  }));
+}
+
+function withNullShirtNumber(items) {
+  return items.map((item) => ({
+    ...item,
+    shirtNumber: null
   }));
 }
 
@@ -62,7 +87,7 @@ async function listUsersForManagement() {
       }
     });
   } catch (error) {
-    if (!shouldFallbackWithoutEmail(error)) {
+    if (!shouldFallbackWithoutEmail(error) && !shouldFallbackWithoutShirtNumber(error)) {
       throw error;
     }
 
@@ -73,14 +98,13 @@ async function listUsersForManagement() {
         username: true,
         role: true,
         playerCategory: true,
-        shirtNumber: true,
         isActive: true,
         createdAt: true,
         lastPasswordChangeAt: true
       }
     });
 
-    return withNullEmail(rows);
+    return withNullShirtNumber(withNullEmail(rows));
   }
 }
 
@@ -101,11 +125,20 @@ async function createManagedUser(input) {
       }
     });
   } catch (error) {
-    if (!shouldFallbackWithoutEmail(error)) {
+    const missingEmail = shouldFallbackWithoutEmail(error);
+    const missingShirtNumber = shouldFallbackWithoutShirtNumber(error);
+    if (!missingEmail && !missingShirtNumber) {
       throw error;
     }
 
-    const { email, ...fallbackInput } = input;
+    const fallbackInput = { ...input };
+    if (missingEmail) {
+      delete fallbackInput.email;
+    }
+    if (missingShirtNumber) {
+      delete fallbackInput.shirtNumber;
+    }
+
     const row = await prisma.user.create({
       data: fallbackInput,
       select: {
@@ -113,7 +146,6 @@ async function createManagedUser(input) {
         username: true,
         role: true,
         playerCategory: true,
-        shirtNumber: true,
         isActive: true,
         createdAt: true,
         lastPasswordChangeAt: true
@@ -122,7 +154,8 @@ async function createManagedUser(input) {
 
     return {
       ...row,
-      email: null
+      email: missingEmail ? null : input.email,
+      shirtNumber: null
     };
   }
 }
@@ -145,7 +178,7 @@ async function setUserActiveStatus(id, isActive) {
       }
     });
   } catch (error) {
-    if (!shouldFallbackWithoutEmail(error)) {
+    if (!shouldFallbackWithoutEmail(error) && !shouldFallbackWithoutShirtNumber(error)) {
       throw error;
     }
 
@@ -157,7 +190,6 @@ async function setUserActiveStatus(id, isActive) {
         username: true,
         role: true,
         playerCategory: true,
-        shirtNumber: true,
         isActive: true,
         createdAt: true,
         lastPasswordChangeAt: true
@@ -166,7 +198,8 @@ async function setUserActiveStatus(id, isActive) {
 
     return {
       ...row,
-      email: null
+      email: null,
+      shirtNumber: null
     };
   }
 }
@@ -192,7 +225,7 @@ async function resetUserPasswordByAdmin(id, passwordHash) {
       }
     });
   } catch (error) {
-    if (!shouldFallbackWithoutEmail(error)) {
+    if (!shouldFallbackWithoutEmail(error) && !shouldFallbackWithoutShirtNumber(error)) {
       throw error;
     }
 
@@ -207,7 +240,6 @@ async function resetUserPasswordByAdmin(id, passwordHash) {
         username: true,
         role: true,
         playerCategory: true,
-        shirtNumber: true,
         isActive: true,
         createdAt: true,
         lastPasswordChangeAt: true
@@ -216,16 +248,18 @@ async function resetUserPasswordByAdmin(id, passwordHash) {
 
     return {
       ...row,
-      email: null
+      email: null,
+      shirtNumber: null
     };
   }
 }
 
-async function updateUserRoleAndCategory(id, role, playerCategory, shirtNumber) {
+async function updateUserRoleAndCategory(id, email, role, playerCategory, shirtNumber) {
   try {
     return await prisma.user.update({
       where: { id },
       data: {
+        email,
         role,
         playerCategory,
         shirtNumber
@@ -243,23 +277,33 @@ async function updateUserRoleAndCategory(id, role, playerCategory, shirtNumber) 
       }
     });
   } catch (error) {
-    if (!shouldFallbackWithoutEmail(error)) {
+    const missingEmail = shouldFallbackWithoutEmail(error);
+    const missingShirtNumber = shouldFallbackWithoutShirtNumber(error);
+    if (!missingEmail && !missingShirtNumber) {
       throw error;
+    }
+
+    const fallbackData = {
+      email,
+      role,
+      playerCategory,
+      shirtNumber
+    };
+    if (missingEmail) {
+      delete fallbackData.email;
+    }
+    if (missingShirtNumber) {
+      delete fallbackData.shirtNumber;
     }
 
     const row = await prisma.user.update({
       where: { id },
-      data: {
-        role,
-        playerCategory,
-        shirtNumber
-      },
+      data: fallbackData,
       select: {
         id: true,
         username: true,
         role: true,
         playerCategory: true,
-        shirtNumber: true,
         isActive: true,
         createdAt: true,
         lastPasswordChangeAt: true
@@ -268,7 +312,8 @@ async function updateUserRoleAndCategory(id, role, playerCategory, shirtNumber) 
 
     return {
       ...row,
-      email: null
+      email: missingEmail ? null : email,
+      shirtNumber: null
     };
   }
 }
@@ -284,22 +329,46 @@ async function updateUserPassword(id, passwordHash) {
 }
 
 async function listActivePlayers() {
-  return prisma.user.findMany({
-    where: {
-      role: 'player',
-      isActive: true
-    },
-    orderBy: [
-      { playerCategory: 'asc' },
-      { username: 'asc' }
-    ],
-    select: {
-      id: true,
-      username: true,
-      playerCategory: true,
-      shirtNumber: true
+  try {
+    return await prisma.user.findMany({
+      where: {
+        role: 'player',
+        isActive: true
+      },
+      orderBy: [
+        { playerCategory: 'asc' },
+        { username: 'asc' }
+      ],
+      select: {
+        id: true,
+        username: true,
+        playerCategory: true,
+        shirtNumber: true
+      }
+    });
+  } catch (error) {
+    if (!shouldFallbackWithoutShirtNumber(error)) {
+      throw error;
     }
-  });
+
+    const rows = await prisma.user.findMany({
+      where: {
+        role: 'player',
+        isActive: true
+      },
+      orderBy: [
+        { playerCategory: 'asc' },
+        { username: 'asc' }
+      ],
+      select: {
+        id: true,
+        username: true,
+        playerCategory: true
+      }
+    });
+
+    return withNullShirtNumber(rows);
+  }
 }
 
 function playerCategoriesForTrainingCategory(trainingCategory) {
