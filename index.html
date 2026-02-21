@@ -242,6 +242,34 @@
             color: #003399;
         }
 
+        @media (max-width: 1024px) {
+            .header-top {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 20px;
+            }
+
+            nav {
+                width: 100%;
+            }
+
+            nav ul {
+                gap: 12px 14px;
+                flex-wrap: wrap;
+                justify-content: center;
+                width: 100%;
+            }
+
+            nav li {
+                min-width: 0;
+                flex-shrink: 1;
+            }
+
+            .login-btn {
+                max-width: 100%;
+            }
+        }
+
         /* Hero Section */
         .hero {
             background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('images/jhan-castillon--xWbnIW_ma0-unsplash.jpg');
@@ -1006,17 +1034,26 @@
                 align-items: stretch !important;
             }
 
-            .header-top {
-                flex-direction: column;
-                gap: 15px;
-                padding: 15px 20px;
-            }
-
             nav ul {
                 gap: 15px;
                 font-size: 14px;
                 flex-wrap: wrap;
                 justify-content: center;
+            }
+
+            #matches {
+                padding: 50px 12px !important;
+            }
+
+            .matches-container {
+                grid-template-columns: 1fr;
+                gap: 14px;
+                margin-top: 18px;
+            }
+
+            .match-card {
+                width: 100%;
+                padding: 18px;
             }
 
             .hero h1 {
