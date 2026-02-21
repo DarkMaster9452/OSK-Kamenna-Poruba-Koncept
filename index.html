@@ -2145,11 +2145,10 @@
             const matchesNavLink = document.getElementById('matchesNavLink');
             if (currentUser.isLoggedIn) {
                 const fullUsername = currentUser.username || '';
-                const shortUsername = fullUsername.length > 14 ? `${fullUsername.slice(0, 14)}…` : fullUsername;
-                loginBtn.textContent = shortUsername;
+                loginBtn.textContent = fullUsername;
                 loginBtn.title = fullUsername;
                 if (mobileLoginBtn) {
-                    mobileLoginBtn.textContent = shortUsername;
+                    mobileLoginBtn.textContent = fullUsername;
                     mobileLoginBtn.title = fullUsername;
                 }
                 trainingNavLink.style.display = 'block';
