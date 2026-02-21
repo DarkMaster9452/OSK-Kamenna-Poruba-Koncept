@@ -137,8 +137,9 @@
 
         .header-top {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
+            gap: 20px;
             padding: 20px 40px;
             max-width: 1400px;
             margin: 0 auto;
@@ -159,7 +160,7 @@
             object-fit: contain;
             border-radius: 50%;
             background: white;
-            padding: 6px;
+            padding: 3px;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
             display: block;
         }
@@ -168,11 +169,17 @@
             color: #ffd700;
         }
 
+        nav {
+            flex: 1;
+            min-width: 0;
+        }
+
         nav ul {
             list-style: none;
             display: flex;
             gap: 30px;
             align-items: center;
+            justify-content: flex-end;
         }
 
         nav li {
@@ -185,7 +192,7 @@
             font-weight: 500;
             transition: color 0.3s;
             position: relative;
-            white-space: nowrap;
+            margin-right: 0;
             display: inline-flex;
             align-items: center;
             gap: 6px;
@@ -225,6 +232,7 @@
         .login-btn {
             background: #ffd700;
             color: #003399;
+            text-decoration: none;
             padding: 8px 20px;
             border-radius: 5px;
             transition: background 0.3s;
@@ -242,21 +250,37 @@
             color: #003399;
         }
 
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+
+        .mobile-login-item {
+            display: none;
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            width: 42px;
+            height: 42px;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 6px;
+            background: transparent;
+            color: #fff;
+            font-size: 18px;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
         @media (max-width: 1024px) {
-            .header-top {
-                flex-direction: column;
-                gap: 15px;
-                padding: 15px 20px;
-            }
-
-            nav {
-                width: 100%;
-            }
-
             nav ul {
                 gap: 12px 14px;
                 flex-wrap: wrap;
-                justify-content: center;
+                justify-content: flex-end;
                 width: 100%;
             }
 
@@ -424,6 +448,24 @@
         .card-text {
             color: #666;
             line-height: 1.6;
+        }
+
+        .about-history {
+            max-width: 1400px;
+            margin: 12px auto 0;
+            background: white;
+            padding: 28px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .about-history p {
+            color: #444;
+            line-height: 1.8;
+            margin-bottom: 14px;
+        }
+
+        .about-history p:last-child {
+            margin-bottom: 0;
         }
 
         /* Players Section */
@@ -1020,6 +1062,80 @@
         /* Responsive */
         @media (max-width: 768px) {
 
+            .header-top {
+                padding: 12px 14px;
+                gap: 10px;
+                position: relative;
+            }
+
+            .logo {
+                gap: 0;
+            }
+
+            .logo>div {
+                display: none;
+            }
+
+            .logo-img {
+                width: 52px;
+                height: 52px;
+                padding: 2px;
+            }
+
+            .mobile-menu-toggle {
+                display: inline-flex;
+            }
+
+            .header-actions .login-btn {
+                display: inline-block;
+                max-width: 120px;
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+
+            nav {
+                display: none;
+                position: absolute;
+                left: 0;
+                right: 0;
+                top: 100%;
+                background: linear-gradient(135deg, #003399 0%, #1a5ccc 100%);
+                padding: 10px 14px 14px;
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.22);
+                z-index: 1100;
+            }
+
+            nav.open {
+                display: block;
+            }
+
+            nav ul {
+                width: 100%;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 6px;
+                flex-wrap: nowrap;
+                font-size: 14px;
+            }
+
+            nav li {
+                width: 100%;
+            }
+
+            .mobile-login-item {
+                display: none;
+            }
+
+            nav a {
+                display: flex;
+                width: 100%;
+                padding: 10px 6px;
+            }
+
+            .mobile-login-item .login-btn {
+                display: none;
+            }
+
             /* Player category filter buttons stacked on mobile */
             #players .category-filter {
                 display: flex;
@@ -1034,13 +1150,6 @@
                 align-items: stretch !important;
             }
 
-            nav ul {
-                gap: 15px;
-                font-size: 14px;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-
             #matches {
                 padding: 50px 12px !important;
             }
@@ -1053,6 +1162,10 @@
 
             .match-card {
                 width: 100%;
+                padding: 18px;
+            }
+
+            .about-history {
                 padding: 18px;
             }
 
@@ -1153,7 +1266,7 @@
                     <div style="font-size: 18px; font-weight: bold;">Kamenná Poruba</div>
                 </div>
             </div>
-            <nav>
+            <nav id="mainNav">
                 <ul>
                     <li><a href="#about">O nás</a></li>
                     <li><a href="#players">Hráči</a></li>
@@ -1170,9 +1283,17 @@
                             onclick="goToTrainings(event)"><i class="fas fa-dumbbell"></i> Tréningy</a></li>
                     <li><a href="#" id="infoNavLink" style="cursor: pointer; display: none;"
                             onclick="goToImportantInfo(event)"><i class="fas fa-bullhorn"></i> Dôležité info</a></li>
-                    <li><a href="#" class="login-btn" id="loginBtnText">Prihlásiť sa</a></li>
+                    <li class="mobile-login-item"><a href="#" class="login-btn" id="mobileLoginBtnText">Prihlásiť sa</a>
+                    </li>
                 </ul>
             </nav>
+            <div class="header-actions">
+                <a href="#" class="login-btn" id="loginBtnText">Prihlásiť sa</a>
+                <button id="mobileMenuToggle" class="mobile-menu-toggle" type="button" aria-label="Menu"
+                    aria-expanded="false">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
         </div>
     </header>
 
@@ -1193,42 +1314,19 @@
         <!-- About Section -->
         <section id="about">
             <h2><i class="fas fa-info-circle"></i> O našom klube</h2>
-            <div class="cards-grid">
-                <div class="card">
-                    <div class="card-image"
-                        style="background: linear-gradient(135deg, #ffd700, #ffed4e); display: flex; align-items: center; justify-content: center;">
-                        <img src="images/359sk_1.jpg" alt="Naša história"
-                            style="width: 100%; height: 100%; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); object-fit: cover; object-position: 70% center; transform: scale(1.1);">
-                    </div>
-                    <div class="card-content">
-                        <div class="card-title">Naša história</div>
-                        <div class="card-text">Založený v roku 1955, OŠK Kamenná Poruba si vytvoril bohatú históriu,
-                            záväzok a silu komunity. Viac ako 70 rokov tradície a úspechov v slovenskom futbale.</div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-image"
-                        style="background: linear-gradient(135deg, #003399, #1a5ccc); display: flex; align-items: center; justify-content: center; color: white; font-size: 60px;">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="card-content">
-                        <div class="card-title">Naša komunita</div>
-                        <div class="card-text">S tisíckami priaznivcov a živou základňou fanúšikov predstavuje náš klub
-                            srdce Kamennej Poruby. Sme odhodlaní rozvíjať mládež a futbal od základov.</div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-image"
-                        style="background: linear-gradient(135deg, #ffd700, #ffed4e); display: flex; align-items: center; justify-content: center; color: #003399; font-size: 60px;">
-                        <i class="fas fa-trophy"></i>
-                    </div>
-                    <div class="card-content">
-                        <div class="card-title">Naše úspechy</div>
-                        <div class="card-text">Viacero regionálnych majstrovstiev, stabilné výkony v súťažiach a
-                            nespočetné pamätné chvíle definujú úspechy nášho klubu. Pridajte sa k nám na ceste k ďalším
-                            históriám.</div>
-                    </div>
-                </div>
+            <div class="about-history">
+                <p>Podľa pamätníkov sa telovýchovné hnutie v Kamennej Porube zorganizovalo v roku 1955. Pri jeho zrode
+                    stáli Karol Vereš, Jozef Čuklovič, Ignác Vereš, Pavol Chovančík, Anton Turanec, Blažej Pleva, Ondrej
+                    Rybárik a František Sandanus.</p>
+                <p>Prvý názov bol Sokol Kamenná Poruba. V roku 1977 sa názov zmenil na TJ ŠM Kamenná Poruba a od roku
+                    2003 nesie klub názov Obecný športový klub Kamenná Poruba.</p>
+                <p>Prvé ihrisko bolo na konci dediny v Porubskej doline. Od roku 1969 sa hrával futbal na ihrisku na
+                    Skotni. Na ihrisko bol veľmi zlý prístup a aj samotné ihrisko nebolo v dobrom stave.</p>
+                <p>Nové ihrisko sa za pomoci miestnych futbalových nadšencov začalo stavať v lokalite Dub. Hrávať sa na
+                    ňom začalo v roku 1980.</p>
+                <p>V roku 2006 sa pri ihrisku začali budovať šatne, ktoré sa dokončili v roku 2010. V roku 2018 sa na
+                    ihrisku vybudovalo umelé zavlažovanie a postavila sa menšia tribúna.</p>
+                <p>V súčasnosti ma klub 7 futbalových družstiev.</p>
             </div>
 
         </section>
@@ -1696,17 +1794,66 @@
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 });
             }
-            // Always set login/logout button click handler
+
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const mainNav = document.getElementById('mainNav');
+
+            function closeMobileMenu() {
+                if (!mainNav || !mobileMenuToggle) return;
+                mainNav.classList.remove('open');
+                mobileMenuToggle.setAttribute('aria-expanded', 'false');
+            }
+
+            if (mobileMenuToggle && mainNav) {
+                mobileMenuToggle.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    const open = mainNav.classList.toggle('open');
+                    mobileMenuToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+                });
+
+                mainNav.addEventListener('click', function (event) {
+                    const target = event.target;
+                    if (!(target instanceof Element)) return;
+                    if (target.closest('a')) {
+                        closeMobileMenu();
+                    }
+                });
+
+                document.addEventListener('click', function (event) {
+                    const target = event.target;
+                    if (!(target instanceof Element)) return;
+
+                    if (target.closest('#mobileMenuToggle') || target.closest('#mainNav')) {
+                        return;
+                    }
+
+                    closeMobileMenu();
+                });
+
+                window.addEventListener('resize', function () {
+                    if (window.innerWidth > 768) {
+                        closeMobileMenu();
+                    }
+                });
+            }
+
+            function handleAuthButtonClick(e) {
+                e.preventDefault();
+                if (currentUser && currentUser.isLoggedIn) {
+                    openLogoutModal();
+                } else {
+                    openLoginModal();
+                }
+            }
+
             const loginBtn = document.getElementById('loginBtnText');
             if (loginBtn) {
-                loginBtn.onclick = function (e) {
-                    e.preventDefault();
-                    if (currentUser && currentUser.isLoggedIn) {
-                        openLogoutModal();
-                    } else {
-                        openLoginModal();
-                    }
-                };
+                loginBtn.onclick = handleAuthButtonClick;
+            }
+
+            const mobileLoginBtn = document.getElementById('mobileLoginBtnText');
+            if (mobileLoginBtn) {
+                mobileLoginBtn.onclick = handleAuthButtonClick;
             }
         });
         // Global variables
@@ -1947,6 +2094,7 @@
         // Update login button text
         function updateLoginButtonText() {
             const loginBtn = document.getElementById('loginBtnText');
+            const mobileLoginBtn = document.getElementById('mobileLoginBtnText');
             const trainingNavLink = document.getElementById('trainingNavLink');
             const infoNavLink = document.getElementById('infoNavLink');
             const matchesNavLink = document.getElementById('matchesNavLink');
@@ -1955,12 +2103,20 @@
                 const shortUsername = fullUsername.length > 14 ? `${fullUsername.slice(0, 14)}…` : fullUsername;
                 loginBtn.textContent = shortUsername;
                 loginBtn.title = fullUsername;
+                if (mobileLoginBtn) {
+                    mobileLoginBtn.textContent = shortUsername;
+                    mobileLoginBtn.title = fullUsername;
+                }
                 trainingNavLink.style.display = 'block';
                 infoNavLink.style.display = 'block';
                 matchesNavLink.style.display = 'block';
             } else {
                 loginBtn.textContent = 'Prihlásiť sa';
                 loginBtn.title = '';
+                if (mobileLoginBtn) {
+                    mobileLoginBtn.textContent = 'Prihlásiť sa';
+                    mobileLoginBtn.title = '';
+                }
                 trainingNavLink.style.display = 'none';
                 infoNavLink.style.display = 'none';
                 // keep matchesNavLink visible for all users (including guests)
