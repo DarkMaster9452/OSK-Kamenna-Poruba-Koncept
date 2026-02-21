@@ -223,6 +223,10 @@
                     </select>
                 </div>
                 <div>
+                    <label for="newShirtNumber">Číslo dresu</label>
+                    <input id="newShirtNumber" type="number" min="1" max="99" step="1" placeholder="napr. 10" />
+                </div>
+                <div>
                     <label for="newIsActive">Stav</label>
                     <select id="newIsActive">
                         <option value="true">Aktívny</option>
@@ -294,6 +298,8 @@
                 <option value="adults_young">Dospelí - Mladí</option>
                 <option value="adults_pro">Dospelí - Skúsení</option>
             </select>
+            <label for="editShirtNumberInput" style="margin-top:10px;">Číslo dresu</label>
+            <input id="editShirtNumberInput" type="number" min="1" max="99" step="1" placeholder="napr. 10" />
             <div id="editProfileMessage"></div>
             <div class="modal-actions">
                 <button class="btn btn-secondary" type="button" onclick="closeEditProfileModal()">Zrušiť</button>
@@ -318,6 +324,16 @@
         let resetUsername = null;
         let editUserId = null;
         let editUsername = null;
+
+        function parseShirtNumber(rawValue) {
+            const value = String(rawValue || '').trim();
+            if (!value) return null;
+            const parsed = Number(value);
+            if (!Number.isInteger(parsed) || parsed < 1 || parsed > 99) {
+                return NaN;
+            }
+            return parsed;
+        }
 
         function goBack() {
             window.location.href = 'index.html';
@@ -440,7 +456,7 @@
                         <td>${categoryLabel(user.playerCategory)}</td>
                         <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                         <td class="actions">
-                            <button class="btn btn-secondary" onclick="openEditProfileModal('${user.id}','${user.username}','${user.role}','${user.playerCategory || ''}')">Upraviť rolu</button>
+                            <button class="btn btn-secondary" onclick="openEditProfileModal('${user.id}','${user.username}','${user.role}','${user.playerCategory || ''}','${user.shirtNumber || ''}')">Upraviť rolu</button>
                             <button class="btn btn-secondary" onclick="openPasswordModal('${user.id}','${user.username}')">Reset hesla</button>
                             <button class="btn ${toggleClass}" onclick="toggleUserStatus('${user.id}', ${user.isActive})">${toggleLabel}</button>
                         </td>
@@ -458,7 +474,13 @@
             const password = document.getElementById('newPassword').value;
             const role = document.getElementById('newRole').value;
             const categoryValue = document.getElementById('newCategory').value || null;
+            const shirtNumber = parseShirtNumber(document.getElementById('newShirtNumber').value);
             const isActive = document.getElementById('newIsActive').value === 'true';
+
+            if (Number.isNaN(shirtNumber)) {
+                message('createMessage', 'Číslo dresu musí byť celé číslo od 1 do 99.', 'error');
+                return;
+            }
 
             if (role === 'player' && !categoryValue) {
                 message('createMessage', 'Pre hráča treba zvoliť kategóriu.', 'error');
@@ -480,6 +502,7 @@
                         password,
                         role,
                         playerCategory: role === 'player' ? categoryValue : null,
+                        shirtNumber: role === 'player' ? shirtNumber : null,
                         isActive
                     })
                 });
@@ -511,13 +534,14 @@
             document.getElementById('passwordModal').classList.remove('active');
         }
 
-        function openEditProfileModal(userId, username, role, playerCategory) {
+        function openEditProfileModal(userId, username, role, playerCategory, shirtNumber) {
             editUserId = userId;
             editUsername = username;
 
             document.getElementById('editUserLabel').textContent = `Používateľ: ${username}`;
             document.getElementById('editRoleSelect').value = role;
             document.getElementById('editCategorySelect').value = playerCategory || '';
+            document.getElementById('editShirtNumberInput').value = shirtNumber || '';
             message('editProfileMessage', '', 'success');
 
             handleEditRoleToggle();
@@ -533,17 +557,27 @@
         function handleEditRoleToggle() {
             const role = document.getElementById('editRoleSelect').value;
             const category = document.getElementById('editCategorySelect');
+            const shirtNumber = document.getElementById('editShirtNumberInput');
             if (role === 'player') {
                 category.disabled = false;
+                shirtNumber.disabled = false;
             } else {
                 category.value = '';
+                shirtNumber.value = '';
                 category.disabled = true;
+                shirtNumber.disabled = true;
             }
         }
 
         async function submitUserProfileUpdate() {
             const role = document.getElementById('editRoleSelect').value;
             const playerCategory = document.getElementById('editCategorySelect').value || null;
+            const shirtNumber = parseShirtNumber(document.getElementById('editShirtNumberInput').value);
+
+            if (Number.isNaN(shirtNumber)) {
+                message('editProfileMessage', 'Číslo dresu musí byť celé číslo od 1 do 99.', 'error');
+                return;
+            }
 
             if (role === 'player' && !playerCategory) {
                 message('editProfileMessage', 'Pre hráča treba zvoliť kategóriu.', 'error');
@@ -561,7 +595,8 @@
                     },
                     body: JSON.stringify({
                         role,
-                        playerCategory: role === 'player' ? playerCategory : null
+                        playerCategory: role === 'player' ? playerCategory : null,
+                        shirtNumber: role === 'player' ? shirtNumber : null
                     })
                 });
 
@@ -629,11 +664,15 @@
 
         document.getElementById('newRole').addEventListener('change', function () {
             const category = document.getElementById('newCategory');
+            const shirtNumber = document.getElementById('newShirtNumber');
             if (this.value === 'player') {
                 category.disabled = false;
+                shirtNumber.disabled = false;
             } else {
                 category.value = '';
+                shirtNumber.value = '';
                 category.disabled = true;
+                shirtNumber.disabled = true;
             }
         });
 
@@ -654,7 +693,9 @@
             if (!ok) return;
 
             const category = document.getElementById('newCategory');
+            const shirtNumber = document.getElementById('newShirtNumber');
             category.disabled = true;
+            shirtNumber.disabled = true;
             await fetchUsers();
         })();
     </script>

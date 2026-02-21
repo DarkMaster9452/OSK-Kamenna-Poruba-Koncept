@@ -55,6 +55,7 @@ async function listUsersForManagement() {
         email: true,
         role: true,
         playerCategory: true,
+        shirtNumber: true,
         isActive: true,
         createdAt: true,
         lastPasswordChangeAt: true
@@ -72,6 +73,7 @@ async function listUsersForManagement() {
         username: true,
         role: true,
         playerCategory: true,
+        shirtNumber: true,
         isActive: true,
         createdAt: true,
         lastPasswordChangeAt: true
@@ -92,6 +94,7 @@ async function createManagedUser(input) {
         email: true,
         role: true,
         playerCategory: true,
+        shirtNumber: true,
         isActive: true,
         createdAt: true,
         lastPasswordChangeAt: true
@@ -110,6 +113,7 @@ async function createManagedUser(input) {
         username: true,
         role: true,
         playerCategory: true,
+        shirtNumber: true,
         isActive: true,
         createdAt: true,
         lastPasswordChangeAt: true
@@ -134,6 +138,7 @@ async function setUserActiveStatus(id, isActive) {
         email: true,
         role: true,
         playerCategory: true,
+        shirtNumber: true,
         isActive: true,
         createdAt: true,
         lastPasswordChangeAt: true
@@ -152,6 +157,7 @@ async function setUserActiveStatus(id, isActive) {
         username: true,
         role: true,
         playerCategory: true,
+        shirtNumber: true,
         isActive: true,
         createdAt: true,
         lastPasswordChangeAt: true
@@ -179,6 +185,7 @@ async function resetUserPasswordByAdmin(id, passwordHash) {
         email: true,
         role: true,
         playerCategory: true,
+        shirtNumber: true,
         isActive: true,
         createdAt: true,
         lastPasswordChangeAt: true
@@ -200,6 +207,7 @@ async function resetUserPasswordByAdmin(id, passwordHash) {
         username: true,
         role: true,
         playerCategory: true,
+        shirtNumber: true,
         isActive: true,
         createdAt: true,
         lastPasswordChangeAt: true
@@ -213,13 +221,14 @@ async function resetUserPasswordByAdmin(id, passwordHash) {
   }
 }
 
-async function updateUserRoleAndCategory(id, role, playerCategory) {
+async function updateUserRoleAndCategory(id, role, playerCategory, shirtNumber) {
   try {
     return await prisma.user.update({
       where: { id },
       data: {
         role,
-        playerCategory
+        playerCategory,
+        shirtNumber
       },
       select: {
         id: true,
@@ -227,6 +236,7 @@ async function updateUserRoleAndCategory(id, role, playerCategory) {
         email: true,
         role: true,
         playerCategory: true,
+        shirtNumber: true,
         isActive: true,
         createdAt: true,
         lastPasswordChangeAt: true
@@ -241,13 +251,15 @@ async function updateUserRoleAndCategory(id, role, playerCategory) {
       where: { id },
       data: {
         role,
-        playerCategory
+        playerCategory,
+        shirtNumber
       },
       select: {
         id: true,
         username: true,
         role: true,
         playerCategory: true,
+        shirtNumber: true,
         isActive: true,
         createdAt: true,
         lastPasswordChangeAt: true
@@ -284,7 +296,8 @@ async function listActivePlayers() {
     select: {
       id: true,
       username: true,
-      playerCategory: true
+      playerCategory: true,
+      shirtNumber: true
     }
   });
 }

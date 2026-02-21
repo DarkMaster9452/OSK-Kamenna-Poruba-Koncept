@@ -24,12 +24,15 @@ const playerCategorySchema = z.enum([
   'adults_pro'
 ]);
 
+const shirtNumberSchema = z.number().int().min(1).max(99);
+
 const createUserSchema = z.object({
   username: z.string().min(3).max(100),
   email: z.string().email().max(254),
   password: z.string().min(8).max(200),
   role: z.enum(['admin', 'coach', 'player', 'parent']),
   playerCategory: playerCategorySchema.nullable().optional(),
+  shirtNumber: shirtNumberSchema.nullable().optional(),
   isActive: z.boolean().default(true)
 });
 
@@ -43,7 +46,8 @@ const userStatusSchema = z.object({
 
 const updateUserProfileSchema = z.object({
   role: z.enum(['admin', 'coach', 'player', 'parent']),
-  playerCategory: playerCategorySchema.nullable().optional()
+  playerCategory: playerCategorySchema.nullable().optional(),
+  shirtNumber: shirtNumberSchema.nullable().optional()
 });
 
 async function writeAuditSafe(payload) {
@@ -62,7 +66,7 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/', validateBody(createUserSchema), async (req, res) => {
-  const { username, email, password, role, playerCategory, isActive } = req.body;
+  const { username, email, password, role, playerCategory, shirtNumber, isActive } = req.body;
 
   if (role === 'player' && !playerCategory) {
     return res.status(400).json({ message: 'Pre hráča je povinná kategória.' });
@@ -72,6 +76,10 @@ router.post('/', validateBody(createUserSchema), async (req, res) => {
     return res.status(400).json({ message: 'Kategóriu je možné nastaviť iba pre hráča.' });
   }
 
+  if (role !== 'player' && shirtNumber !== null && shirtNumber !== undefined) {
+    return res.status(400).json({ message: 'Číslo dresu je možné nastaviť iba pre hráča.' });
+  }
+
   const passwordHash = await bcrypt.hash(password, 12);
 
   const created = await createManagedUser({
@@ -79,6 +87,7 @@ router.post('/', validateBody(createUserSchema), async (req, res) => {
     email: email.trim().toLowerCase(),
     role,
     playerCategory: role === 'player' ? playerCategory : null,
+    shirtNumber: role === 'player' ? (shirtNumber ?? null) : null,
     passwordHash,
     isActive
   });
@@ -148,7 +157,7 @@ router.patch('/:id/profile', validateBody(updateUserProfileSchema), async (req, 
     return res.status(404).json({ message: 'Používateľ neexistuje.' });
   }
 
-  const { role, playerCategory } = req.body;
+  const { role, playerCategory, shirtNumber } = req.body;
 
   if (role === 'player' && !playerCategory) {
     return res.status(400).json({ message: 'Pre hráča je povinná kategória.' });
@@ -158,6 +167,10 @@ router.patch('/:id/profile', validateBody(updateUserProfileSchema), async (req, 
     return res.status(400).json({ message: 'Kategóriu je možné nastaviť iba pre hráča.' });
   }
 
+  if (role !== 'player' && shirtNumber !== null && shirtNumber !== undefined) {
+    return res.status(400).json({ message: 'Číslo dresu je možné nastaviť iba pre hráča.' });
+  }
+
   if (targetUser.id === req.user.id && role !== 'admin') {
     return res.status(400).json({ message: 'Nemôžete zmeniť vlastnú rolu z admina.' });
   }
@@ -165,7 +178,8 @@ router.patch('/:id/profile', validateBody(updateUserProfileSchema), async (req, 
   const updated = await updateUserRoleAndCategory(
     req.params.id,
     role,
-    role === 'player' ? playerCategory : null
+    role === 'player' ? playerCategory : null,
+    role === 'player' ? (shirtNumber ?? null) : null
   );
 
   await writeAuditSafe({
@@ -176,7 +190,8 @@ router.patch('/:id/profile', validateBody(updateUserProfileSchema), async (req, 
     details: {
       username: updated.username,
       role: updated.role,
-      playerCategory: updated.playerCategory
+      playerCategory: updated.playerCategory,
+      shirtNumber: updated.shirtNumber
     }
   });
 

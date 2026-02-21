@@ -2126,21 +2126,16 @@
             filteredPlayers.forEach(player => {
                 const initials = player.fullName.split(' ').map(n => n[0]).join('');
                 const stats = player.stats || { matches: 0, minutes: 0, goals: 0, yellowCards: 0, secondYellow: 0, redCards: 0 };
-                const infoParts = [];
-                if (player.position && String(player.position).trim() && String(player.position).trim() !== '--') {
-                    infoParts.push(player.position);
-                }
-                if (player.shirtNumber !== null && player.shirtNumber !== undefined && String(player.shirtNumber).trim() && String(player.shirtNumber).trim() !== '--') {
-                    infoParts.push(`#${player.shirtNumber}`);
-                }
-                infoParts.push(getCategoryLabel(player.category));
+                const shirtText = (player.shirtNumber !== null && player.shirtNumber !== undefined && String(player.shirtNumber).trim() && String(player.shirtNumber).trim() !== '--')
+                    ? `#${player.shirtNumber}`
+                    : 'Číslo dresu nepridelené';
                 html += `
                     <div class="player-stat-item">
                         <div class="player-stat-info">
                             <div class="player-stat-avatar">${initials}</div>
                             <div class="player-stat-details">
                                 <div class="player-stat-name">${player.fullName}</div>
-                                <div class="player-stat-info-text">${infoParts.join(' • ')}</div>
+                                <div class="player-stat-info-text">${shirtText}</div>
                             </div>
                         </div>
                         <div class="player-stat-values">

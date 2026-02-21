@@ -21,7 +21,7 @@ router.get('/', async (req, res) => {
     fullName: toFullName(row.username),
     category: row.playerCategory,
     position: '--',
-    shirtNumber: '--',
+    shirtNumber: row.shirtNumber ?? '--',
     dateOfBirth: '--',
     stats: {
       matches: 0,
