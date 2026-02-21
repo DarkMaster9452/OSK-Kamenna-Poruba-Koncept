@@ -2166,6 +2166,9 @@
         function openLoginModal() {
             document.getElementById('loginModal').classList.add('active');
             document.body.style.overflow = 'hidden';
+            ensureCsrfToken().catch(() => {
+                csrfTokenCache = null;
+            });
         }
 
         function closeLoginModal() {
@@ -2624,6 +2627,10 @@
 
         // Load last login if available
         window.addEventListener('load', async function () {
+            ensureCsrfToken().catch(() => {
+                csrfTokenCache = null;
+            });
+
             try {
                 await syncCurrentUserFromSession();
             } catch (error) {

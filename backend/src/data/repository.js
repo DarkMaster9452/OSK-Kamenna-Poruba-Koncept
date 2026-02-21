@@ -27,7 +27,15 @@ function withNullEmail(items) {
 
 async function findUserByUsername(username) {
   return prisma.user.findUnique({
-    where: { username }
+    where: { username },
+    select: {
+      id: true,
+      username: true,
+      passwordHash: true,
+      role: true,
+      playerCategory: true,
+      isActive: true
+    }
   });
 }
 

@@ -84,6 +84,7 @@
             border-radius: 10px;
             padding: 24px 18px;
             width: 220px;
+            box-sizing: border-box;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
             cursor: pointer;
             transition: background 0.2s, transform 0.2s;
@@ -139,6 +140,25 @@
             margin-top: 8px;
             padding-top: 8px;
             border-top: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 24px 12px;
+            }
+
+            .player-list {
+                gap: 12px;
+            }
+
+            .player-card {
+                width: calc((100% - 12px) / 2);
+                padding: 16px 10px;
+            }
+
+            .player-name {
+                font-size: 17px;
+            }
         }
     </style>
 </head>
