@@ -360,6 +360,18 @@
             return map[value] || '—';
         }
 
+        function encodeParam(value) {
+            return encodeURIComponent(value == null ? '' : String(value));
+        }
+
+        function decodeParam(value) {
+            try {
+                return decodeURIComponent(value == null ? '' : String(value));
+            } catch (_) {
+                return value == null ? '' : String(value);
+            }
+        }
+
         async function ensureCsrfToken() {
             if (csrfToken) return csrfToken;
             const res = await fetch(`${API_BASE}/csrf-token`, { credentials: 'include' });
@@ -450,6 +462,11 @@
                 const statusText = user.isActive ? 'Aktívny' : 'Neaktívny';
                 const toggleLabel = user.isActive ? 'Deaktivovať' : 'Aktivovať';
                 const toggleClass = user.isActive ? 'btn-danger' : 'btn-success';
+                const encodedUsername = encodeParam(user.username);
+                const encodedEmail = encodeParam(user.email || '');
+                const encodedRole = encodeParam(user.role);
+                const encodedCategory = encodeParam(user.playerCategory || '');
+                const encodedShirtNumber = encodeParam(user.shirtNumber || '');
                 return `
                     <tr>
                         <td>${user.username}</td>
@@ -458,13 +475,28 @@
                         <td>${categoryLabel(user.playerCategory)}</td>
                         <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                         <td class="actions">
-                            <button class="btn btn-secondary" onclick="openEditProfileModal('${user.id}','${user.username}','${user.email || ''}','${user.role}','${user.playerCategory || ''}','${user.shirtNumber || ''}')">Upraviť profil</button>
-                            <button class="btn btn-secondary" onclick="openPasswordModal('${user.id}','${user.username}')">Reset hesla</button>
+                            <button class="btn btn-secondary" onclick="openEditProfileModalFromEncoded('${user.id}','${encodedUsername}','${encodedEmail}','${encodedRole}','${encodedCategory}','${encodedShirtNumber}')">Upraviť profil</button>
+                            <button class="btn btn-secondary" onclick="openPasswordModalFromEncoded('${user.id}','${encodedUsername}')">Reset hesla</button>
                             <button class="btn ${toggleClass}" onclick="toggleUserStatus('${user.id}', ${user.isActive})">${toggleLabel}</button>
                         </td>
                     </tr>
                 `;
             }).join('');
+        }
+
+        function openPasswordModalFromEncoded(userId, usernameEncoded) {
+            openPasswordModal(userId, decodeParam(usernameEncoded));
+        }
+
+        function openEditProfileModalFromEncoded(userId, usernameEncoded, emailEncoded, roleEncoded, playerCategoryEncoded, shirtNumberEncoded) {
+            openEditProfileModal(
+                userId,
+                decodeParam(usernameEncoded),
+                decodeParam(emailEncoded),
+                decodeParam(roleEncoded),
+                decodeParam(playerCategoryEncoded),
+                decodeParam(shirtNumberEncoded)
+            );
         }
 
         async function createUser(event) {
