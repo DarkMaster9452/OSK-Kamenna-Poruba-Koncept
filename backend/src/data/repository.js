@@ -590,7 +590,11 @@ async function listPolls() {
 async function createPoll(input, createdById) {
   return prisma.poll.create({
     data: {
-      ...input,
+      question: input.question,
+      options: input.options,
+      target: input.target,
+      playerCategory: input.playerCategory,
+      closesAt: input.closesAt || null,
       createdById
     },
     include: {
@@ -626,7 +630,8 @@ async function closePoll(id) {
   return prisma.poll.update({
     where: { id },
     data: {
-      active: false
+      active: false,
+      closedAt: new Date()
     }
   });
 }

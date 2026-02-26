@@ -763,7 +763,7 @@
                     </div>
                     <div class="form-group">
                         <label for="trainingTime">Čas:</label>
-                        <input type="time" id="trainingTime">
+                        <input type="time" id="trainingTime" step="900">
                     </div>
                     <div class="form-group">
                         <label for="trainingType">Typ:</label>
@@ -1051,6 +1051,16 @@
             }
         }
 
+        function isQuarterHourTime(value) {
+            const match = String(value || '').match(/^(\d{2}):(\d{2})$/);
+            if (!match) {
+                return false;
+            }
+
+            const minutes = Number(match[2]);
+            return Number.isInteger(minutes) && minutes % 15 === 0;
+        }
+
         async function createTraining() {
             console.log('createTraining called');
 
@@ -1066,6 +1076,12 @@
             if (!date || !time || !type || !duration || !category) {
                 if (errorDiv) {
                     errorDiv.textContent = 'Vyplňte všetky polia!';
+                    errorDiv.style.display = 'block';
+                }
+                return;
+            } else if (!isQuarterHourTime(time)) {
+                if (errorDiv) {
+                    errorDiv.textContent = 'Čas tréningu musí byť po 15 minútach (00, 15, 30, 45).';
                     errorDiv.style.display = 'block';
                 }
                 return;

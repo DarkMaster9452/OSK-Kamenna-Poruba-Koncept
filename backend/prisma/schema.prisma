@@ -138,6 +138,8 @@ model Poll {
   target    TargetGroup
   playerCategory PlayerCategory?
   active    Boolean     @default(true)
+  closesAt  DateTime?
+  closedAt  DateTime?
   createdAt DateTime    @default(now())
 
   createdById String

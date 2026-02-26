@@ -29,6 +29,25 @@ const attendanceSchema = z.object({
   status: z.enum(['yes', 'no', 'unknown'])
 });
 
+function isQuarterHourTime(value) {
+  const match = String(value || '').match(/^(\d{2}):(\d{2})$/);
+  if (!match) {
+    return false;
+  }
+
+  const hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  if (!Number.isInteger(hours) || !Number.isInteger(minutes)) {
+    return false;
+  }
+
+  if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+    return false;
+  }
+
+  return minutes % 15 === 0;
+}
+
 async function writeAuditSafe(payload) {
   try {
     await createAuditLog(payload);
@@ -55,6 +74,10 @@ router.get('/', requireAuth, async (req, res) => {
 });
 
 router.post('/', requireAuth, requireRole('coach', 'admin'), validateBody(createTrainingSchema), async (req, res) => {
+  if (!isQuarterHourTime(req.body.time)) {
+    return res.status(400).json({ message: 'Čas tréningu musí byť po 15 minútach (00, 15, 30, 45).' });
+  }
+
   const row = await createTraining(req.body, req.user.id);
   const item = {
     id: row.id,

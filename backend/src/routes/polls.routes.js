@@ -18,7 +18,8 @@ const createPollSchema = z.object({
   question: z.string().min(5).max(500),
   options: z.array(z.string().min(1).max(200)).min(2).max(10),
   target: z.enum(['all', 'players', 'parents', 'coaches', 'admins']),
-  playerCategory: z.enum(['pripravka_u9', 'pripravka_u11', 'ziaci', 'dorastenci', 'adults_young', 'adults_pro']).nullable().optional()
+  playerCategory: z.enum(['pripravka_u9', 'pripravka_u11', 'ziaci', 'dorastenci', 'adults_young', 'adults_pro']).nullable().optional(),
+  closesAt: z.string().datetime().optional()
 });
 
 const voteSchema = z.object({
@@ -33,9 +34,63 @@ async function writeAuditSafe(payload) {
   }
 }
 
+function hasQuarterHourMinutes(date) {
+  return date.getUTCMinutes() % 15 === 0 && date.getUTCSeconds() === 0 && date.getUTCMilliseconds() === 0;
+}
+
+function parseAndValidateClosesAt(rawValue) {
+  if (!rawValue) {
+    return null;
+  }
+
+  const parsed = new Date(rawValue);
+  if (Number.isNaN(parsed.getTime())) {
+    const error = new Error('Neplatný čas ukončenia ankety.');
+    error.status = 400;
+    throw error;
+  }
+
+  if (!hasQuarterHourMinutes(parsed)) {
+    const error = new Error('Čas ukončenia ankety musí byť po 15 minútach (00, 15, 30, 45).');
+    error.status = 400;
+    throw error;
+  }
+
+  if (parsed.getTime() <= Date.now()) {
+    const error = new Error('Čas ukončenia ankety musí byť v budúcnosti.');
+    error.status = 400;
+    throw error;
+  }
+
+  return parsed;
+}
+
+async function ensurePollClosedIfExpired(poll) {
+  if (!poll || !poll.active || !poll.closesAt) {
+    return poll;
+  }
+
+  const closesAt = new Date(poll.closesAt);
+  if (Number.isNaN(closesAt.getTime())) {
+    return poll;
+  }
+
+  if (Date.now() < closesAt.getTime()) {
+    return poll;
+  }
+
+  const closed = await closePoll(poll.id);
+  return {
+    ...poll,
+    active: closed.active,
+    closedAt: closed.closedAt
+  };
+}
+
 router.get('/', requireAuth, async (req, res) => {
   const rows = await listPolls();
-  const visibleRows = rows.filter((row) => {
+  const rowsWithState = await Promise.all(rows.map((row) => ensurePollClosedIfExpired(row)));
+  const visibleRows = rowsWithState.filter((row) => {
     if (row.target === 'admins') return req.user.role === 'admin';
     if (req.user.role === 'coach' || req.user.role === 'admin') return true;
     if (row.target === 'all') return true;
@@ -68,6 +123,8 @@ router.get('/', requireAuth, async (req, res) => {
       target: row.target,
       playerCategory: row.playerCategory,
       active: row.active,
+      closesAt: row.closesAt,
+      closedAt: row.closedAt,
       createdAt: row.createdAt,
       createdBy: row.createdBy.username,
       results,
@@ -84,9 +141,17 @@ router.post('/', requireAuth, requireRole('coach', 'admin'), validateBody(create
     return res.status(400).json({ message: 'Kategóriu hráčov je možné zvoliť len pre cieľ Hráči.' });
   }
 
+  let closesAt;
+  try {
+    closesAt = parseAndValidateClosesAt(req.body.closesAt);
+  } catch (error) {
+    return res.status(error.status || 400).json({ message: error.message || 'Neplatný čas ukončenia ankety.' });
+  }
+
   const input = {
     ...req.body,
-    playerCategory: req.body.target === 'players' ? (req.body.playerCategory || null) : null
+    playerCategory: req.body.target === 'players' ? (req.body.playerCategory || null) : null,
+    closesAt: closesAt ? closesAt.toISOString() : null
   };
 
   const row = await createPoll(input, req.user.id);
@@ -97,6 +162,8 @@ router.post('/', requireAuth, requireRole('coach', 'admin'), validateBody(create
     target: row.target,
     playerCategory: row.playerCategory,
     active: row.active,
+    closesAt: row.closesAt,
+    closedAt: row.closedAt,
     createdAt: row.createdAt,
     createdBy: row.createdBy.username,
     results: new Array(row.options.length).fill(0),
@@ -112,7 +179,8 @@ router.post('/', requireAuth, requireRole('coach', 'admin'), validateBody(create
     details: {
       question: row.question,
       target: row.target,
-      playerCategory: row.playerCategory
+      playerCategory: row.playerCategory,
+      closesAt: row.closesAt
     }
   });
 
@@ -124,7 +192,8 @@ router.post('/:id/vote', requireAuth, validateBody(voteSchema), async (req, res)
     return res.status(403).json({ message: 'Tréner/Admin nemôže hlasovať v ankete.' });
   }
 
-  const poll = await findPollById(req.params.id);
+  const pollRaw = await findPollById(req.params.id);
+  const poll = await ensurePollClosedIfExpired(pollRaw);
   if (!poll) {
     return res.status(404).json({ message: 'Anketa neexistuje.' });
   }

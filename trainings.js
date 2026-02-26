@@ -14,6 +14,16 @@ const PARENT_CHILDREN_MAP = {};
 
 const PLAYER_NAME_MAP = {};
 
+function isQuarterHourTime(value) {
+    const match = String(value || '').match(/^(\d{2}):(\d{2})$/);
+    if (!match) {
+        return false;
+    }
+
+    const minutes = Number(match[2]);
+    return Number.isInteger(minutes) && minutes % 15 === 0;
+}
+
 function getApiBase() {
     if (typeof API_BASE === 'string' && API_BASE.length > 0) {
         return API_BASE;
@@ -84,7 +94,7 @@ function initializeTrainingView() {
                         </div>
                         <div>
                             <label style="display: block; margin-bottom: 8px; color: #ffd700; font-weight: bold;">Čas:</label>
-                            <input type="time" id="coachTrainingTime" style="width: 100%; padding: 10px; border: 1px solid #ffd700; border-radius: 5px; background: rgba(255, 255, 255, 0.1); color: white;">
+                            <input type="time" id="coachTrainingTime" step="900" style="width: 100%; padding: 10px; border: 1px solid #ffd700; border-radius: 5px; background: rgba(255, 255, 255, 0.1); color: white;">
                         </div>
                         <div>
                             <label style="display: block; margin-bottom: 8px; color: #ffd700; font-weight: bold;">Typ:</label>
@@ -197,6 +207,11 @@ async function createTraining() {
 
     if (!date || !time || !type || !duration || !category) {
         alert('Prosím vyplňte všetky polia!');
+        return;
+    }
+
+    if (!isQuarterHourTime(time)) {
+        alert('Čas tréningu musí byť po 15 minútach (00, 15, 30, 45).');
         return;
     }
 

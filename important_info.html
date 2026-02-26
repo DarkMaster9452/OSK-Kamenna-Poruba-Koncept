@@ -399,6 +399,14 @@
                         <textarea id="pollOptions" rows="4" placeholder="Pondelok 17:00&#10;Utorok 18:00"></textarea>
                     </div>
                     <div class="form-group">
+                        <label for="pollEndDate">Koniec ankety - dátum</label>
+                        <input id="pollEndDate" type="date">
+                    </div>
+                    <div class="form-group">
+                        <label for="pollEndTime">Koniec ankety - čas</label>
+                        <input id="pollEndTime" type="time" step="900">
+                    </div>
+                    <div class="form-group">
                         <label for="pollTarget">Pre koho</label>
                         <select id="pollTarget" onchange="toggleTargetCategoryFields()">
                             <option value="all">Všetci</option>
@@ -557,6 +565,16 @@
             return new Date(ts).toLocaleString('sk-SK');
         }
 
+        function isQuarterHourTime(value) {
+            const match = String(value || '').match(/^(\d{2}):(\d{2})$/);
+            if (!match) {
+                return false;
+            }
+
+            const minutes = Number(match[2]);
+            return Number.isInteger(minutes) && minutes % 15 === 0;
+        }
+
         function getSeenEventsKey() {
             const username = currentUser && currentUser.username ? currentUser.username : 'guest';
             return STORAGE_SEEN_PREFIX + username;
@@ -671,6 +689,8 @@
             const target = document.getElementById('pollTarget').value;
             const playerCategoryRaw = document.getElementById('pollPlayerCategory').value;
             const playerCategory = target === 'players' && playerCategoryRaw ? playerCategoryRaw : null;
+            const pollEndDate = document.getElementById('pollEndDate').value;
+            const pollEndTime = document.getElementById('pollEndTime').value;
             const options = document.getElementById('pollOptions').value
                 .split('\n')
                 .map(x => x.trim())
@@ -681,6 +701,29 @@
                 return;
             }
 
+            if (!pollEndDate || !pollEndTime) {
+                alert('Vyplňte dátum a čas ukončenia ankety.');
+                return;
+            }
+
+            if (!isQuarterHourTime(pollEndTime)) {
+                alert('Čas ukončenia ankety musí byť po 15 minútach (00, 15, 30, 45).');
+                return;
+            }
+
+            const closesAtDate = new Date(`${pollEndDate}T${pollEndTime}:00`);
+            if (Number.isNaN(closesAtDate.getTime())) {
+                alert('Neplatný dátum alebo čas ukončenia ankety.');
+                return;
+            }
+
+            if (closesAtDate.getTime() <= Date.now()) {
+                alert('Koniec ankety musí byť v budúcnosti.');
+                return;
+            }
+
+            const closesAt = closesAtDate.toISOString();
+
             try {
                 const csrfToken = await ensureCsrfToken();
                 const payload = await apiFetch('/polls', {
@@ -688,7 +731,7 @@
                     headers: {
                         'x-csrf-token': csrfToken
                     },
-                    body: JSON.stringify({ question, options, target, playerCategory })
+                    body: JSON.stringify({ question, options, target, playerCategory, closesAt })
                 });
                 polls.unshift(payload.item);
             } catch (error) {
@@ -699,6 +742,8 @@
             document.getElementById('pollQuestion').value = '';
             document.getElementById('pollOptions').value = '';
             document.getElementById('pollPlayerCategory').value = '';
+            document.getElementById('pollEndDate').value = '';
+            document.getElementById('pollEndTime').value = '';
             renderEvents();
         }
 
@@ -815,6 +860,8 @@
                 const selected = p.selectedOption;
                 const counts = getPollResults(p);
                 const totalVotes = Number.isInteger(p.totalVotes) ? p.totalVotes : counts.reduce((a, b) => a + b, 0);
+                const closesAtText = p.closesAt ? formatDate(p.closesAt) : null;
+                const closedAtText = p.closedAt ? formatDate(p.closedAt) : null;
 
                 const optionsHtml = p.options.map((opt, idx) => {
                     const isSelected = selected === idx;
@@ -834,8 +881,9 @@
 
                 return `
                     <div class="item poll">
-                        <div class="event-type poll">ANKETA${p.active ? '' : ' • UZAVRETÁ'}</div>
+                        <div class="event-type poll">ANKETA${p.active ? '' : ' • DOKONČENÁ'}</div>
                         <div class="meta">${formatDate(p.createdAt)} • ${p.createdBy} • ${targetLabel(p.target)}${p.playerCategory ? ' • ' + categoryLabel(p.playerCategory) : ''}</div>
+                        ${closesAtText ? `<div class="meta">Koniec: ${closesAtText}${closedAtText ? ` • Dokončená: ${closedAtText}` : ''}</div>` : ''}
                         <div class="title">${p.question}</div>
                             <div class="poll-options">${optionsHtml}</div>
                             ${(currentUser.role !== 'coach' && currentUser.role !== 'admin') ? `<div class="meta">Hlasov spolu: ${totalVotes}</div>` : ''}
