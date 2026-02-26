@@ -31,6 +31,8 @@ Citlivé dáta (účty, roly, oznamy, ankety, tréningy a účasť) sú spravova
 - role-based prístup (RBAC)
 - tréningy: create/list/attendance/close/delete
 - email notifikácie pri vytvorení tréningu pre hráčov vo vybranej kategórii (ak je nastavené SMTP)
+
+
 - udalosti: create/list/delete (s cieľovou skupinou)
 - ankety: create/list/vote/close/delete
 - audit záznamy vybraných akcií v backende
