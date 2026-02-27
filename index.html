@@ -25,47 +25,6 @@
             display: block;
             margin: auto;
         }
-body {
-  margin: 0;
-  padding: 0;
-  background: #f9f9f9;
-}
-
-.logo-slider {
-  overflow: hidden;
-  white-space: nowrap;
-  width: 100%;
-  padding: 3rem 0;
-  background: #fff;
-  border-top: 1px solid #eee;
-  border-bottom: 1px solid #eee;
-}
-
-.logo-track {
-  display: inline-block;
-  white-space: nowrap;
-  animation: scroll 25s linear infinite;
-}
-
-.logo-track img {
-  height: 85px;
-  margin: 0 3rem;
-  vertical-align: middle;
-  transition: transform 0.3s ease;
-}
-
-.logo-track img:hover {
-  transform: scale(1.2);
-}
-
-@keyframes scroll {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
         /* Gallery Modal Navigation Arrows - Modern SVG style */
         #galleryModalPrev,
         #galleryModalNext {
@@ -1258,11 +1217,6 @@ body {
 
         /* Sponsors */
         .sponsors-bar {
-            --sponsor-card-width: 200px;
-            --sponsor-card-height: 84px;
-            --sponsor-gap: 14px;
-            --sponsor-count: 7;
-            --sponsor-shift: calc((var(--sponsor-card-width) + var(--sponsor-gap)) * var(--sponsor-count));
             margin-top: 40px;
             background: #f8fbff;
             border-top: 2px solid #e6eefc;
@@ -1296,24 +1250,15 @@ body {
             display: flex;
             width: max-content;
             align-items: center;
-            flex-wrap: nowrap;
-            gap: var(--sponsor-gap);
-            animation: sponsorsMarquee 32s linear infinite;
-            will-change: transform;
-        }
-
-        .sponsors-group {
-            display: flex;
-            align-items: center;
-            gap: var(--sponsor-gap);
-            padding-right: var(--sponsor-gap);
+            gap: 14px;
+            animation: sponsorsMarquee 28s linear infinite;
         }
 
         .sponsor-item {
-            width: var(--sponsor-card-width);
-            min-width: var(--sponsor-card-width);
-            height: var(--sponsor-card-height);
-            min-height: var(--sponsor-card-height);
+            width: 200px;
+            min-width: 200px;
+            height: 84px;
+            min-height: 84px;
             border-radius: 10px;
             border: 1px solid #d9e7ff;
             background: #fff;
@@ -1342,8 +1287,6 @@ body {
             height: 100%;
             object-fit: contain;
             display: block;
-            transform: scale(2);
-            transform-origin: center;
         }
 
         .sponsor-logo--kofola {
@@ -1357,21 +1300,19 @@ body {
             }
 
             to {
-                transform: translateX(calc(-1 * var(--sponsor-shift)));
+                transform: translateX(-50%);
             }
         }
 
         @media (max-width: 768px) {
-            .sponsors-bar {
-                --sponsor-card-width: 150px;
-                --sponsor-card-height: 72px;
-            }
-
             .sponsors-title {
                 font-size: 18px;
             }
 
             .sponsor-item {
+                width: 150px;
+                min-width: 150px;
+                height: 72px;
                 padding: 8px;
             }
         }
@@ -1379,7 +1320,6 @@ body {
         @media (prefers-reduced-motion: reduce) {
             .sponsors-track {
                 animation: none;
-                transform: none;
             }
         }
 
@@ -2136,6 +2076,10 @@ body {
                         rel="noopener noreferrer" aria-label="Mas Technik">
                         <img src="images/mas%20technik%20logo.png" alt="Mas Technik">
                     </a>
+                    <a class="sponsor-item sponsor-link" href="https://oskkp.sk" target="_blank"
+                        rel="noopener noreferrer" aria-label="359 SK">
+                        <img src="images/359sk_1.jpg" alt="359 SK">
+                    </a>
                     <div class="sponsor-item" aria-label="Voľné miesto pre partnera">
                         <span
                             style="font-weight:700;color:#003399;font-size:14px;text-align:center;line-height:1.3;">Miesto
@@ -2166,6 +2110,10 @@ body {
                         rel="noopener noreferrer" aria-label="Mas Technik">
                         <img src="images/mas%20technik%20logo.png" alt="Mas Technik">
                     </a>
+                    <a class="sponsor-item sponsor-link" href="https://oskkp.sk" target="_blank"
+                        rel="noopener noreferrer" aria-label="359 SK">
+                        <img src="images/359sk_1.jpg" alt="359 SK">
+                    </a>
                     <div class="sponsor-item" aria-label="Voľné miesto pre partnera">
                         <span
                             style="font-weight:700;color:#003399;font-size:14px;text-align:center;line-height:1.3;">Miesto
@@ -2175,15 +2123,6 @@ body {
             </div>
         </div>
     </section>
-<div class="logo-slider">
-  <div class="logo-track">
-    <img src="images/kofola.png" alt="Kofola" />
-    <img src="images/Bez názvu.png" alt="SpinteQ" />
-    <img src="images/tomchlad-logo-blue.png" alt="Tomchlad" />
-    <img src="images/mas-technik-logo.png" alt="Mas Technik" />
-    <!-- add more logos here -->
-  </div>
-</div>
     <!-- Footer -->
     <footer>
         <div class="footer-content">
