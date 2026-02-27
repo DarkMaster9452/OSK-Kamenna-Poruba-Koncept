@@ -1241,7 +1241,7 @@
         }
 
         .sponsors-viewport {
-            overflow: visible;
+            overflow: hidden;
             position: relative;
             width: 100%;
             padding: 6px 0;
@@ -1249,12 +1249,12 @@
 
         .sponsors-track {
             display: flex;
-            width: 100%;
+            width: max-content;
             align-items: center;
-            flex-wrap: wrap;
-            justify-content: flex-start;
+            flex-wrap: nowrap;
             gap: 14px;
-            animation: none;
+            animation: sponsorsMarquee 32s linear infinite;
+            will-change: transform;
         }
 
         .sponsor-item {
@@ -2061,7 +2061,7 @@
                     </a>
                     <a class="sponsor-item sponsor-link" href="https://spinteq.sk" target="_blank"
                         rel="noopener noreferrer" aria-label="Spinteq">
-                        <img src="images/Bez názvu.png" alt="Spinteq">
+                        <img src="images/Bez%20n%C3%A1zvu.png" alt="Spinteq">
                     </a>
                     <a class="sponsor-item sponsor-link" href="https://gardenteam.sk" target="_blank"
                         rel="noopener noreferrer" aria-label="Gardenteam">
@@ -2077,7 +2077,36 @@
                     </a>
                     <a class="sponsor-item sponsor-link" href="https://mastechnik.sk" target="_blank"
                         rel="noopener noreferrer" aria-label="Mas Technik">
-                        <img src="images/mas technik logo.png" alt="Mas Technik">
+                        <img src="images/mas%20technik%20logo.png" alt="Mas Technik">
+                    </a>
+                    <div class="sponsor-item" aria-label="Voľné miesto pre partnera">
+                        <span
+                            style="font-weight:700;color:#003399;font-size:14px;text-align:center;line-height:1.3;">Miesto
+                            pre<br>ďalšieho sponzora</span>
+                    </div>
+                    <a class="sponsor-item sponsor-link" href="https://tomchlad.sk" target="_blank"
+                        rel="noopener noreferrer" aria-label="Tomchlad">
+                        <img src="images/tomchlad-logo-blue.png" alt="Tomchlad">
+                    </a>
+                    <a class="sponsor-item sponsor-link" href="https://spinteq.sk" target="_blank"
+                        rel="noopener noreferrer" aria-label="Spinteq">
+                        <img src="images/Bez%20n%C3%A1zvu.png" alt="Spinteq">
+                    </a>
+                    <a class="sponsor-item sponsor-link" href="https://gardenteam.sk" target="_blank"
+                        rel="noopener noreferrer" aria-label="Gardenteam">
+                        <img src="images/logo_RGB.png" alt="Gardenteam">
+                    </a>
+                    <a class="sponsor-item sponsor-link" href="https://www.kofola.sk" target="_blank"
+                        rel="noopener noreferrer" aria-label="Kofola">
+                        <img class="sponsor-logo--kofola" src="images/kofola.png" alt="Kofola">
+                    </a>
+                    <a class="sponsor-item sponsor-link" href="https://oskkp.sk" target="_blank"
+                        rel="noopener noreferrer" aria-label="OŠK Kamenná Poruba">
+                        <img src="images/664dfb89aff21.png" alt="OŠK Kamenná Poruba">
+                    </a>
+                    <a class="sponsor-item sponsor-link" href="https://mastechnik.sk" target="_blank"
+                        rel="noopener noreferrer" aria-label="Mas Technik">
+                        <img src="images/mas%20technik%20logo.png" alt="Mas Technik">
                     </a>
                     <div class="sponsor-item" aria-label="Voľné miesto pre partnera">
                         <span
