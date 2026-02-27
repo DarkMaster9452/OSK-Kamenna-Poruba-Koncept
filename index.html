@@ -1241,7 +1241,7 @@
         }
 
         .sponsors-viewport {
-            overflow: hidden;
+            overflow: visible;
             position: relative;
             width: 100%;
             padding: 6px 0;
@@ -1249,11 +1249,12 @@
 
         .sponsors-track {
             display: flex;
-            width: max-content;
+            width: 100%;
             align-items: center;
+            flex-wrap: wrap;
+            justify-content: flex-start;
             gap: 14px;
-            animation: sponsorsMarquee 28s linear infinite;
-            will-change: transform;
+            animation: none;
         }
 
         .sponsor-item {
@@ -2054,35 +2055,6 @@
             <h2 class="sponsors-title">Partneri klubu</h2>
             <div class="sponsors-viewport">
                 <div class="sponsors-track">
-                    <a class="sponsor-item sponsor-link" href="https://tomchlad.sk" target="_blank"
-                        rel="noopener noreferrer" aria-label="Tomchlad">
-                        <img src="images/tomchlad-logo-blue.png" alt="Tomchlad">
-                    </a>
-                    <a class="sponsor-item sponsor-link" href="https://spinteq.sk" target="_blank"
-                        rel="noopener noreferrer" aria-label="Spinteq">
-                        <img src="images/Bez názvu.png" alt="Spinteq">
-                    </a>
-                    <a class="sponsor-item sponsor-link" href="https://gardenteam.sk" target="_blank"
-                        rel="noopener noreferrer" aria-label="Gardenteam">
-                        <img src="images/logo_RGB.png" alt="Gardenteam">
-                    </a>
-                    <a class="sponsor-item sponsor-link" href="https://www.kofola.sk" target="_blank"
-                        rel="noopener noreferrer" aria-label="Kofola">
-                        <img class="sponsor-logo--kofola" src="images/kofola.png" alt="Kofola">
-                    </a>
-                    <a class="sponsor-item sponsor-link" href="https://oskkp.sk" target="_blank"
-                        rel="noopener noreferrer" aria-label="OŠK Kamenná Poruba">
-                        <img src="images/664dfb89aff21.png" alt="OŠK Kamenná Poruba">
-                    </a>
-                    <a class="sponsor-item sponsor-link" href="https://mastechnik.sk" target="_blank"
-                        rel="noopener noreferrer" aria-label="Mas Technik">
-                        <img src="images/mas technik logo.png" alt="Mas Technik">
-                    </a>
-                    <div class="sponsor-item" aria-label="Voľné miesto pre partnera">
-                        <span
-                            style="font-weight:700;color:#003399;font-size:14px;text-align:center;line-height:1.3;">Miesto
-                            pre<br>ďalšieho sponzora</span>
-                    </div>
                     <a class="sponsor-item sponsor-link" href="https://tomchlad.sk" target="_blank"
                         rel="noopener noreferrer" aria-label="Tomchlad">
                         <img src="images/tomchlad-logo-blue.png" alt="Tomchlad">
