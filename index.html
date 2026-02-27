@@ -1218,6 +1218,11 @@
 
         /* Sponsors */
         .sponsors-bar {
+            --sponsor-card-width: 200px;
+            --sponsor-card-height: 84px;
+            --sponsor-gap: 14px;
+            --sponsor-count: 7;
+            --sponsor-shift: calc((var(--sponsor-card-width) + var(--sponsor-gap)) * var(--sponsor-count));
             margin-top: 40px;
             background: #f8fbff;
             border-top: 2px solid #e6eefc;
@@ -1252,15 +1257,23 @@
             width: max-content;
             align-items: center;
             flex-wrap: nowrap;
-            gap: 14px;
+            gap: 0;
+            animation: sponsorsMarquee 32s linear infinite;
             will-change: transform;
         }
 
+        .sponsors-group {
+            display: flex;
+            align-items: center;
+            gap: var(--sponsor-gap);
+            padding-right: var(--sponsor-gap);
+        }
+
         .sponsor-item {
-            width: 200px;
-            min-width: 200px;
-            height: 84px;
-            min-height: 84px;
+            width: var(--sponsor-card-width);
+            min-width: var(--sponsor-card-width);
+            height: var(--sponsor-card-height);
+            min-height: var(--sponsor-card-height);
             border-radius: 10px;
             border: 1px solid #d9e7ff;
             background: #fff;
@@ -1302,26 +1315,29 @@
             }
 
             to {
-                transform: translateX(-50%);
+                transform: translateX(calc(-1 * var(--sponsor-shift)));
             }
         }
 
         @media (max-width: 768px) {
+            .sponsors-bar {
+                --sponsor-card-width: 150px;
+                --sponsor-card-height: 72px;
+            }
+
             .sponsors-title {
                 font-size: 18px;
             }
 
             .sponsor-item {
-                width: 150px;
-                min-width: 150px;
-                height: 72px;
                 padding: 8px;
             }
         }
 
         @media (prefers-reduced-motion: reduce) {
             .sponsors-track {
-                transform: none !important;
+                animation: none;
+                transform: none;
             }
         }
 
@@ -2053,35 +2069,68 @@
         <div class="sponsors-inner">
             <h2 class="sponsors-title">Partneri klubu</h2>
             <div class="sponsors-viewport">
-                <div class="sponsors-track" id="sponsorsTrack">
-                    <a class="sponsor-item sponsor-link" href="https://tomchlad.sk" target="_blank"
-                        rel="noopener noreferrer" aria-label="Tomchlad">
-                        <img src="images/tomchlad-logo-blue.png" alt="Tomchlad">
-                    </a>
-                    <a class="sponsor-item sponsor-link" href="https://spinteq.sk" target="_blank"
-                        rel="noopener noreferrer" aria-label="Spinteq">
-                        <img src="images/Bez názvu.png" alt="Spinteq">
-                    </a>
-                    <a class="sponsor-item sponsor-link" href="https://gardenteam.sk" target="_blank"
-                        rel="noopener noreferrer" aria-label="Gardenteam">
-                        <img src="images/logo_RGB.png" alt="Gardenteam">
-                    </a>
-                    <a class="sponsor-item sponsor-link" href="https://www.kofola.sk" target="_blank"
-                        rel="noopener noreferrer" aria-label="Kofola">
-                        <img class="sponsor-logo--kofola" src="images/kofola.png" alt="Kofola">
-                    </a>
-                    <a class="sponsor-item sponsor-link" href="https://oskkp.sk" target="_blank"
-                        rel="noopener noreferrer" aria-label="OŠK Kamenná Poruba">
-                        <img src="images/664dfb89aff21.png" alt="OŠK Kamenná Poruba">
-                    </a>
-                    <a class="sponsor-item sponsor-link" href="https://mastechnik.sk" target="_blank"
-                        rel="noopener noreferrer" aria-label="Mas Technik">
-                        <img src="images/mas technik logo.png" alt="Mas Technik">
-                    </a>
-                    <div class="sponsor-item" aria-label="Voľné miesto pre partnera">
-                        <span
-                            style="font-weight:700;color:#003399;font-size:14px;text-align:center;line-height:1.3;">Miesto
-                            pre<br>ďalšieho sponzora</span>
+                <div class="sponsors-track" aria-live="off">
+                    <div class="sponsors-group">
+                        <a class="sponsor-item sponsor-link" href="https://tomchlad.sk" target="_blank"
+                            rel="noopener noreferrer" aria-label="Tomchlad">
+                            <img src="images/tomchlad-logo-blue.png" alt="Tomchlad">
+                        </a>
+                        <a class="sponsor-item sponsor-link" href="https://spinteq.sk" target="_blank"
+                            rel="noopener noreferrer" aria-label="Spinteq">
+                            <img src="images/Bez%20n%C3%A1zvu.png" alt="Spinteq">
+                        </a>
+                        <a class="sponsor-item sponsor-link" href="https://gardenteam.sk" target="_blank"
+                            rel="noopener noreferrer" aria-label="Gardenteam">
+                            <img src="images/logo_RGB.png" alt="Gardenteam">
+                        </a>
+                        <a class="sponsor-item sponsor-link" href="https://www.kofola.sk" target="_blank"
+                            rel="noopener noreferrer" aria-label="Kofola">
+                            <img class="sponsor-logo--kofola" src="images/kofola.png" alt="Kofola">
+                        </a>
+                        <a class="sponsor-item sponsor-link" href="https://oskkp.sk" target="_blank"
+                            rel="noopener noreferrer" aria-label="OŠK Kamenná Poruba">
+                            <img src="images/664dfb89aff21.png" alt="OŠK Kamenná Poruba">
+                        </a>
+                        <a class="sponsor-item sponsor-link" href="https://mastechnik.sk" target="_blank"
+                            rel="noopener noreferrer" aria-label="Mas Technik">
+                            <img src="images/mas%20technik%20logo.png" alt="Mas Technik">
+                        </a>
+                        <div class="sponsor-item" aria-label="Voľné miesto pre partnera">
+                            <span
+                                style="font-weight:700;color:#003399;font-size:14px;text-align:center;line-height:1.3;">Miesto
+                                pre<br>ďalšieho sponzora</span>
+                        </div>
+                    </div>
+                    <div class="sponsors-group" aria-hidden="true">
+                        <a class="sponsor-item sponsor-link" href="https://tomchlad.sk" target="_blank"
+                            rel="noopener noreferrer" tabindex="-1">
+                            <img src="images/tomchlad-logo-blue.png" alt="">
+                        </a>
+                        <a class="sponsor-item sponsor-link" href="https://spinteq.sk" target="_blank"
+                            rel="noopener noreferrer" tabindex="-1">
+                            <img src="images/Bez%20n%C3%A1zvu.png" alt="">
+                        </a>
+                        <a class="sponsor-item sponsor-link" href="https://gardenteam.sk" target="_blank"
+                            rel="noopener noreferrer" tabindex="-1">
+                            <img src="images/logo_RGB.png" alt="">
+                        </a>
+                        <a class="sponsor-item sponsor-link" href="https://www.kofola.sk" target="_blank"
+                            rel="noopener noreferrer" tabindex="-1">
+                            <img class="sponsor-logo--kofola" src="images/kofola.png" alt="">
+                        </a>
+                        <a class="sponsor-item sponsor-link" href="https://oskkp.sk" target="_blank"
+                            rel="noopener noreferrer" tabindex="-1">
+                            <img src="images/664dfb89aff21.png" alt="">
+                        </a>
+                        <a class="sponsor-item sponsor-link" href="https://mastechnik.sk" target="_blank"
+                            rel="noopener noreferrer" tabindex="-1">
+                            <img src="images/mas%20technik%20logo.png" alt="">
+                        </a>
+                        <div class="sponsor-item">
+                            <span
+                                style="font-weight:700;color:#003399;font-size:14px;text-align:center;line-height:1.3;">Miesto
+                                pre<br>ďalšieho sponzora</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2990,53 +3039,6 @@
             ensureCsrfToken().catch(() => {
                 csrfTokenCache = null;
             });
-
-            (function initSponsorsMarquee() {
-                const track = document.getElementById('sponsorsTrack');
-                if (!track || track.dataset.marqueeReady === '1') {
-                    return;
-                }
-
-                const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-                if (reduceMotion) {
-                    track.dataset.marqueeReady = '1';
-                    return;
-                }
-
-                const originalItems = Array.from(track.children);
-                if (originalItems.length === 0) {
-                    return;
-                }
-
-                originalItems.forEach((item) => {
-                    const clone = item.cloneNode(true);
-                    clone.setAttribute('aria-hidden', 'true');
-                    track.appendChild(clone);
-                });
-
-                track.dataset.marqueeReady = '1';
-
-                let offset = 0;
-                const speedPxPerFrame = 0.45;
-
-                function animate() {
-                    const halfWidth = track.scrollWidth / 2;
-                    if (halfWidth <= 0) {
-                        requestAnimationFrame(animate);
-                        return;
-                    }
-
-                    offset += speedPxPerFrame;
-                    if (offset >= halfWidth) {
-                        offset = 0;
-                    }
-
-                    track.style.transform = `translateX(${-offset}px)`;
-                    requestAnimationFrame(animate);
-                }
-
-                requestAnimationFrame(animate);
-            })();
 
             try {
                 await syncCurrentUserFromSession();
