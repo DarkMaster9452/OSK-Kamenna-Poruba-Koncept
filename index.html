@@ -500,6 +500,7 @@
         #about,
         #ateam,
         #academy,
+        #achievements,
         #matches,
         #gallery,
         #parking,
@@ -589,6 +590,90 @@
         .about-toggle-wrap {
             margin-top: 14px;
             text-align: center;
+        }
+
+        #achievements {
+            margin-top: 34px;
+        }
+
+        .achievements-wrap {
+            margin: 34px auto 0;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 18px;
+        }
+
+        .achievements-cta {
+            margin-top: 10px;
+            background: #f8fbff;
+            border: 2px solid #ffd700;
+            border-left: 6px solid #003399;
+            border-radius: 10px;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .achievements-cta-text {
+            color: #24304d;
+            font-weight: 700;
+        }
+
+        .achievements-cta-text i {
+            color: #003399;
+            margin-right: 6px;
+        }
+
+        .achievements-card {
+            background: #fff;
+            border: 1px solid rgba(0, 51, 153, 0.1);
+            border-radius: 10px;
+            padding: 22px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .achievements-subtitle {
+            font-size: 20px;
+            color: #003399;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .achievements-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: grid;
+            gap: 10px;
+        }
+
+        .achievements-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            line-height: 1.6;
+            color: #2a3553;
+        }
+
+        .achievements-list i {
+            color: #ffd700;
+            margin-top: 3px;
+        }
+
+        .achievement-highlight {
+            border-left: 5px solid #ffd700;
+            background: #f8fbff;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+        }
+
+        .achievement-highlight strong {
+            color: #003399;
+            display: block;
+            margin-bottom: 4px;
         }
 
         /* Players Section */
@@ -818,6 +903,27 @@
             border-radius: 5px;
             font-weight: bold;
             white-space: nowrap;
+        }
+
+        .buffet-notice {
+            margin: 0 auto 24px;
+            max-width: 980px;
+            background: #fff8d9;
+            border: 2px solid #ffd700;
+            border-left: 8px solid #003399;
+            border-radius: 10px;
+            padding: 12px 14px;
+            color: #24304d;
+            font-weight: 700;
+            line-height: 1.6;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .buffet-notice i {
+            color: #003399;
+            font-size: 18px;
         }
 
         /* News/Blog Section */
@@ -1619,6 +1725,14 @@
                 padding: 18px;
             }
 
+            .achievements-wrap {
+                grid-template-columns: 1fr;
+            }
+
+            .achievements-card {
+                padding: 16px;
+            }
+
             .hero h1 {
                 font-size: 36px;
             }
@@ -1784,6 +1898,47 @@
 
         </section>
 
+        <section id="achievements">
+            <h2><i class="fas fa-trophy"></i> Úspechy klubu</h2>
+            <div class="achievements-cta">
+                <div class="achievements-cta-text"><i class="fas fa-images"></i> Chceš vidieť kompletnú fototimeline
+                    výstavby? Otvor ju tu:</div>
+                <a href="timeline_ihriska.html" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Otvoriť
+                    timeline</a>
+            </div>
+            <div class="achievements-wrap">
+                <div class="achievements-card">
+                    <div class="achievements-subtitle">Ocenenia a športové výsledky</div>
+                    <ul class="achievements-list">
+                        <li><i class="fas fa-medal"></i><span><strong>Viacnásobné umiestnenia na popredných
+                                    priečkach</strong> v oblastných a regionálnych súťažiach.</span></li>
+                        <li><i class="fas fa-star"></i><span><strong>Postupové sezóny</strong> s potvrdením dlhodobej
+                                práce hráčov a trénerov.</span></li>
+                        <li><i class="fas fa-users"></i><span><strong>Silná mládežnícka základňa</strong> a pravidelné
+                                zapájanie odchovancov do klubu.</span></li>
+                        <li><i class="fas fa-handshake"></i><span><strong>Stabilná komunita fanúšikov</strong> a
+                                partnerov, ktorá klub dlhodobo podporuje.</span></li>
+                    </ul>
+                </div>
+
+                <div class="achievements-card">
+                    <div class="achievements-subtitle">Míľniky OŠK Kamenná Poruba</div>
+                    <div class="achievement-highlight">
+                        <strong>2006 – 2010</strong>
+                        Výstavba klubovej budovy a zázemia pri ihrisku.
+                    </div>
+                    <div class="achievement-highlight">
+                        <strong>2018</strong>
+                        Vybudovanie umelého zavlažovania a menšej tribúny.
+                    </div>
+                    <div class="achievement-highlight" style="margin-bottom:0;">
+                        <strong>Súčasnosť</strong>
+                        Stabilný rozvoj klubu, práca s mládežou a rozširovanie infraštruktúry.
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Matches Section -->
         <section id="matches"
             style="background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%); padding: 80px 40px;">
@@ -1791,6 +1946,10 @@
                 <h2 style="text-align: center; color: #003399; margin-bottom: 50px; font-size: 36px;">
                     <i class="fas fa-calendar-check"></i> NASLEDUJÚCE ZÁPASY
                 </h2>
+                <div class="buffet-notice">
+                    <i class="fas fa-mug-hot"></i>
+                    <span>Počas domácich zápasov a podujatí je bufet s občerstvením otvorený .</span>
+                </div>
                 <div class="matches-container">
                     <div class="match-card" onclick="goToMatches({preventDefault: function(){}})">
                         <div
@@ -2160,10 +2319,11 @@
 
     <div class="logo-slider">
         <div class="logo-track">
-            <a href="https://www.kofola.sk" target="_blank" rel="noopener noreferrer"><img src="images/kofola.png"
-                    alt="Kofola" class="logo-double" /></a>
+
             <a href="https://spinteq.sk" target="_blank" rel="noopener noreferrer"><img src="images/Bez názvu.png"
                     alt="SpinteQ" /></a>
+            <a href="https://www.kofola.sk" target="_blank" rel="noopener noreferrer"><img src="images/kofola.png"
+                    alt="Kofola" class="logo-double" /></a>
             <a href="https://tomchlad.sk" target="_blank" rel="noopener noreferrer"><img
                     src="images/tomchlad-logo-blue.png" alt="Tomchlad" /></a>
             <a href="https://mastechnik.sk" target="_blank" rel="noopener noreferrer"><img

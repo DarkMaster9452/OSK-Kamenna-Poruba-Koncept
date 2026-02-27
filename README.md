@@ -92,6 +92,21 @@ Citlivé dáta (účty, roly, oznamy, ankety, tréningy a účasť) sú spravova
 - `GET /api/announcements`, `POST /api/announcements`, `DELETE /api/announcements/:id`
 - `GET /api/polls`, `POST /api/polls`, `POST /api/polls/:id/vote`, `PATCH /api/polls/:id/close`, `DELETE /api/polls/:id`
 
+### Sportsnet Online (automatické dáta)
+
+- `GET /api/sportsnet/matches`
+- `GET /api/sportsnet/matches?refresh=true` (ignoruje cache)
+
+Backend endpoint je pripravený ako adaptér na `sportsnet.online` feed/API.
+Potrebné env premenné:
+
+- `SPORTSNET_API_URL` (URL feedu/endpointu od Sportsnetu)
+- `SPORTSNET_API_KEY` (ak API vyžaduje Bearer token)
+- `SPORTSNET_TEAM_ID` (voliteľné)
+- `SPORTSNET_COMPETITION_ID` (voliteľné)
+- `SPORTSNET_SEASON` (voliteľné)
+- `SPORTSNET_CACHE_SECONDS` (voliteľné, default `300`)
+
 ## 7) Lokálne spustenie
 
 ### Požiadavky

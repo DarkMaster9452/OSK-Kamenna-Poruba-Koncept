@@ -43,6 +43,8 @@
             gap: 10px;
             font-weight: 800;
             letter-spacing: 0.2px;
+            color: #fff;
+            text-decoration: none;
         }
 
         .brand img {
@@ -61,6 +63,11 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
+        }
+
+        .brand:hover,
+        .back-link:hover {
+            color: #ffd700;
         }
 
         .page {
@@ -255,10 +262,10 @@
 <body>
     <header class="topbar">
         <div class="topbar-inner">
-            <div class="brand">
+            <a class="brand" href="index.html" aria-label="Prejsť na hlavnú stránku">
                 <img src="OŠK Kamenná Poruba Logo.png" alt="Logo OŠK Kamenná Poruba">
                 <span>OŠK Kamenná Poruba</span>
-            </div>
+            </a>
             <a class="back-link" href="index.html"><i class="fas fa-arrow-left"></i> Späť na hlavnú stránku</a>
         </div>
     </header>

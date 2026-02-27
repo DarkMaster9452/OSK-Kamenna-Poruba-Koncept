@@ -12,6 +12,7 @@ const announcementsRoutes = require('./routes/announcements.routes');
 const pollsRoutes = require('./routes/polls.routes');
 const usersRoutes = require('./routes/users.routes');
 const playersRoutes = require('./routes/players.routes');
+const sportsnetRoutes = require('./routes/sportsnet.routes');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
@@ -96,6 +97,7 @@ app.use('/api/announcements', announcementsRoutes);
 app.use('/api/polls', pollsRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/players', playersRoutes);
+app.use('/api/sportsnet', sportsnetRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

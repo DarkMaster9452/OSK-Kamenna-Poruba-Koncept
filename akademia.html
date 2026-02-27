@@ -36,9 +36,14 @@
             align-items: center;
             gap: 10px;
             color: #fff;
+            text-decoration: none;
             font-weight: 700;
             font-size: 16px;
             letter-spacing: 0.2px;
+        }
+
+        .site-brand:hover {
+            color: #ffd700;
         }
 
         .site-logo {
@@ -144,10 +149,10 @@
 <body>
     <header class="site-nav">
         <div class="site-nav-inner">
-            <div class="site-brand">
+            <a class="site-brand" href="index.html" aria-label="Prejsť na hlavnú stránku">
                 <img src="OŠK Kamenná Poruba Logo.png" alt="Logo OŠK Kamenná Poruba" class="site-logo">
                 <span>OŠK Kamenná Poruba</span>
-            </div>
+            </a>
             <a class="btn-back" href="index.html"><i class="fas fa-arrow-left"></i> Späť na hlavnú stránku</a>
         </div>
     </header>

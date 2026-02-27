@@ -21,7 +21,13 @@ const env = {
   smtpUser: process.env.SMTP_USER || '',
   smtpPass: process.env.SMTP_PASS || '',
   smtpFromEmail: process.env.SMTP_FROM_EMAIL || '',
-  smtpFromName: process.env.SMTP_FROM_NAME || 'OŠK Kamenná Poruba'
+  smtpFromName: process.env.SMTP_FROM_NAME || 'OŠK Kamenná Poruba',
+  sportsnetApiUrl: process.env.SPORTSNET_API_URL || '',
+  sportsnetApiKey: process.env.SPORTSNET_API_KEY || '',
+  sportsnetTeamId: process.env.SPORTSNET_TEAM_ID || '',
+  sportsnetCompetitionId: process.env.SPORTSNET_COMPETITION_ID || '',
+  sportsnetSeason: process.env.SPORTSNET_SEASON || '',
+  sportsnetCacheSeconds: Number(process.env.SPORTSNET_CACHE_SECONDS || 300)
 };
 
 if (env.nodeEnv === 'production' && env.jwtAccessSecret === 'dev_only_change_me') {
