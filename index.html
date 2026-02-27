@@ -25,7 +25,47 @@
             display: block;
             margin: auto;
         }
+body {
+  margin: 0;
+  padding: 0;
+  background: #f9f9f9;
+}
 
+.logo-slider {
+  overflow: hidden;
+  white-space: nowrap;
+  width: 100%;
+  padding: 3rem 0;
+  background: #fff;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+}
+
+.logo-track {
+  display: inline-block;
+  white-space: nowrap;
+  animation: scroll 25s linear infinite;
+}
+
+.logo-track img {
+  height: 85px;
+  margin: 0 3rem;
+  vertical-align: middle;
+  transition: transform 0.3s ease;
+}
+
+.logo-track img:hover {
+  transform: scale(1.2);
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
         /* Gallery Modal Navigation Arrows - Modern SVG style */
         #galleryModalPrev,
         #galleryModalNext {
@@ -2069,74 +2109,19 @@
         <div class="sponsors-inner">
             <h2 class="sponsors-title">Partneri klubu</h2>
             <div class="sponsors-viewport">
-                <div class="sponsors-track" aria-live="off">
-                    <div class="sponsors-group">
-                        <a class="sponsor-item sponsor-link" href="https://tomchlad.sk" target="_blank"
-                            rel="noopener noreferrer" aria-label="Tomchlad">
-                            <img src="images/tomchlad-logo-blue.png" alt="Tomchlad">
-                        </a>
-                        <a class="sponsor-item sponsor-link" href="https://spinteq.sk" target="_blank"
-                            rel="noopener noreferrer" aria-label="Spinteq">
-                            <img src="images/Bez%20n%C3%A1zvu.png" alt="Spinteq">
-                        </a>
-                        <a class="sponsor-item sponsor-link" href="https://gardenteam.sk" target="_blank"
-                            rel="noopener noreferrer" aria-label="Gardenteam">
-                            <img src="images/logo_RGB.png" alt="Gardenteam">
-                        </a>
-                        <a class="sponsor-item sponsor-link" href="https://www.kofola.sk" target="_blank"
-                            rel="noopener noreferrer" aria-label="Kofola">
-                            <img class="sponsor-logo--kofola" src="images/kofola.png" alt="Kofola">
-                        </a>
-                        <a class="sponsor-item sponsor-link" href="https://oskkp.sk" target="_blank"
-                            rel="noopener noreferrer" aria-label="OŠK Kamenná Poruba">
-                            <img src="images/664dfb89aff21.png" alt="OŠK Kamenná Poruba">
-                        </a>
-                        <a class="sponsor-item sponsor-link" href="https://mastechnik.sk" target="_blank"
-                            rel="noopener noreferrer" aria-label="Mas Technik">
-                            <img src="images/mas%20technik%20logo.png" alt="Mas Technik">
-                        </a>
-                        <div class="sponsor-item" aria-label="Voľné miesto pre partnera">
-                            <span
-                                style="font-weight:700;color:#003399;font-size:14px;text-align:center;line-height:1.3;">Miesto
-                                pre<br>ďalšieho sponzora</span>
-                        </div>
-                    </div>
-                    <div class="sponsors-group" aria-hidden="true">
-                        <a class="sponsor-item sponsor-link" href="https://tomchlad.sk" target="_blank"
-                            rel="noopener noreferrer" tabindex="-1">
-                            <img src="images/tomchlad-logo-blue.png" alt="">
-                        </a>
-                        <a class="sponsor-item sponsor-link" href="https://spinteq.sk" target="_blank"
-                            rel="noopener noreferrer" tabindex="-1">
-                            <img src="images/Bez%20n%C3%A1zvu.png" alt="">
-                        </a>
-                        <a class="sponsor-item sponsor-link" href="https://gardenteam.sk" target="_blank"
-                            rel="noopener noreferrer" tabindex="-1">
-                            <img src="images/logo_RGB.png" alt="">
-                        </a>
-                        <a class="sponsor-item sponsor-link" href="https://www.kofola.sk" target="_blank"
-                            rel="noopener noreferrer" tabindex="-1">
-                            <img class="sponsor-logo--kofola" src="images/kofola.png" alt="">
-                        </a>
-                        <a class="sponsor-item sponsor-link" href="https://oskkp.sk" target="_blank"
-                            rel="noopener noreferrer" tabindex="-1">
-                            <img src="images/664dfb89aff21.png" alt="">
-                        </a>
-                        <a class="sponsor-item sponsor-link" href="https://mastechnik.sk" target="_blank"
-                            rel="noopener noreferrer" tabindex="-1">
-                            <img src="images/mas%20technik%20logo.png" alt="">
-                        </a>
-                        <div class="sponsor-item">
-                            <span
-                                style="font-weight:700;color:#003399;font-size:14px;text-align:center;line-height:1.3;">Miesto
-                                pre<br>ďalšieho sponzora</span>
-                        </div>
-                    </div>
-                </div>
+                <div class="sponsors-track" aria-live="off"></div>
             </div>
         </div>
     </section>
-
+<div class="logo-slider">
+  <div class="logo-track">
+    <img src="images/kofola.png" alt="Kofola" />
+    <img src="images/Bez názvu.png" alt="SpinteQ" />
+    <img src="images/tomchlad-logo-blue.png" alt="Tomchlad" />
+    <img src="images/mas-technik-logo.png" alt="Mas Technik" />
+    <!-- add more logos here -->
+  </div>
+</div>
     <!-- Footer -->
     <footer>
         <div class="footer-content">
