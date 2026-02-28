@@ -23,7 +23,7 @@ const createTrainingSchema = z.object({
   date: z.string().trim().min(5).max(20),
   time: z.string().trim().min(3).max(10),
   type: z.string().trim().pipe(z.enum(TRAINING_TYPES)),
-  duration: z.coerce.number().int().min(30).max(180),
+  duration: z.coerce.number().int().min(1),
   category: z.string().trim().pipe(z.enum(TRAINING_CATEGORIES)),
   note: z.preprocess(
     (value) => {

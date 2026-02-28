@@ -151,7 +151,7 @@ function initializeTrainingView() {
                         </div>
                         <div>
                             <label style="display: block; margin-bottom: 8px; color: #ffd700; font-weight: bold;">Trvanie (min):</label>
-                            <input type="number" id="coachTrainingDuration" value="90" min="30" step="15" style="width: 100%; padding: 10px; border: 1px solid #ffd700; border-radius: 5px; background: rgba(255, 255, 255, 0.1); color: white;">
+                            <input type="number" id="coachTrainingDuration" value="60" min="1" step="1" style="width: 100%; padding: 10px; border: 1px solid #ffd700; border-radius: 5px; background: rgba(255, 255, 255, 0.1); color: white;">
                         </div>
                         <div>
                             <label style="display: block; margin-bottom: 8px; color: #ffd700; font-weight: bold;">Kategória:</label>
@@ -303,7 +303,7 @@ async function createTraining() {
     document.getElementById('coachTrainingHour').value = '17';
     document.getElementById('coachTrainingMinute').value = '00';
     document.getElementById('coachTrainingType').value = '';
-    document.getElementById('coachTrainingDuration').value = '90';
+    document.getElementById('coachTrainingDuration').value = '60';
     document.getElementById('coachTrainingCategory').value = '';
     if (noteElement) {
         noteElement.value = '';
