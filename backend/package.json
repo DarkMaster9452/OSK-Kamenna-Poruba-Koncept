@@ -29,4 +29,7 @@
   "prisma": {
     "seed": "node prisma/seed.js"
   }
-}
+    "dependencies": {
+      "express": "^4.18.2"
+      // ...existing code...
+    },
