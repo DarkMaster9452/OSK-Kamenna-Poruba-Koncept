@@ -453,6 +453,62 @@ function trainingCategoriesForPlayerCategory(playerCategory) {
   return map[playerCategory] || [];
 }
 
+function getTrainingEndDateTime(training) {
+  if (!training?.date || !training?.time) {
+    return null;
+  }
+
+  const start = new Date(`${training.date}T${training.time}`);
+  if (Number.isNaN(start.getTime())) {
+    return null;
+  }
+
+  const durationMinutes = Number(training.duration);
+  if (!Number.isFinite(durationMinutes) || durationMinutes <= 0) {
+    return null;
+  }
+
+  return new Date(start.getTime() + durationMinutes * 60 * 1000);
+}
+
+async function closeExpiredTrainings() {
+  const activeTrainings = await prisma.training.findMany({
+    where: {
+      isActive: true
+    },
+    select: {
+      id: true,
+      date: true,
+      time: true,
+      duration: true
+    }
+  });
+
+  const now = new Date();
+  const expiredIds = activeTrainings
+    .filter((training) => {
+      const end = getTrainingEndDateTime(training);
+      return end && end <= now;
+    })
+    .map((training) => training.id);
+
+  if (!expiredIds.length) {
+    return;
+  }
+
+  await prisma.training.updateMany({
+    where: {
+      id: {
+        in: expiredIds
+      },
+      isActive: true
+    },
+    data: {
+      isActive: false
+    }
+  });
+}
+
 async function listActivePlayerEmailsByTrainingCategory(trainingCategory) {
   const playerCategories = playerCategoriesForTrainingCategory(trainingCategory);
   if (!playerCategories.length) {
@@ -482,6 +538,8 @@ async function listActivePlayerEmailsByTrainingCategory(trainingCategory) {
 }
 
 async function listTrainings(viewerUser) {
+  await closeExpiredTrainings();
+
   const where = {};
 
   if (viewerUser?.role === 'coach') {
