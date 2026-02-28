@@ -1,7 +1,14 @@
 {
-  "functions": {
-    "api/[...all].js": {
-      "includeFiles": "backend/prisma/**"
+  "builds": [
+    {
+      "src": "src/server.js",
+      "use": "@vercel/node"
     }
-  }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/src/server.js"
+    }
+  ]
 }
