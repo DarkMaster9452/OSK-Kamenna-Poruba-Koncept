@@ -51,17 +51,14 @@ function withNullShirtNumber(items) {
 }
 
 async function findUserByUsername(username) {
-  const normalizedUsername = String(username || '').trim();
-  if (!normalizedUsername) {
+  const exactUsername = String(username || '');
+  if (!exactUsername) {
     return null;
   }
 
-  return prisma.user.findFirst({
+  return prisma.user.findUnique({
     where: {
-      username: {
-        equals: normalizedUsername,
-        mode: 'insensitive'
-      }
+      username: exactUsername
     },
     select: {
       id: true,
