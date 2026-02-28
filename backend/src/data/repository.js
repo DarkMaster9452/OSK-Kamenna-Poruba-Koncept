@@ -821,6 +821,7 @@ module.exports = {
   updateUserPassword,
   listActivePlayers,
   listActivePlayerEmailsByTrainingCategory,
+  closeExpiredTrainings,
   listTrainings,
   findTrainingById,
   createTraining,
