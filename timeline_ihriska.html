@@ -211,6 +211,7 @@
             overflow: hidden;
             background: #f7faff;
             min-width: 160px;
+            cursor: pointer;
         }
 
         .photo-card img {
@@ -241,6 +242,89 @@
             font-size: 18px;
             letter-spacing: 0.3px;
             border: 2px solid #ffd700;
+        }
+
+        .photo-modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            padding: 20px;
+        }
+
+        .photo-modal.open {
+            display: flex;
+        }
+
+        .photo-modal-content {
+            width: min(100%, 980px);
+            max-height: calc(100vh - 40px);
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+        }
+
+        .photo-modal-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            background: #003399;
+            color: #fff;
+        }
+
+        .photo-modal-head button {
+            background: transparent;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .photo-modal-image-wrap {
+            display: grid;
+            place-items: center;
+            background: #eef2ff;
+            min-height: 320px;
+            max-height: 70vh;
+            overflow: auto;
+        }
+
+        .photo-modal-image {
+            max-width: 100%;
+            max-height: 68vh;
+            object-fit: contain;
+        }
+
+        .photo-modal-caption {
+            padding: 10px 14px 14px;
+            color: #003399;
+            font-weight: 700;
+            line-height: 1.4;
+        }
+
+        .photo-modal-nav {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 0 14px 14px;
+        }
+
+        .photo-modal-nav button {
+            border: 1px solid #003399;
+            background: #fff;
+            color: #003399;
+            border-radius: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-weight: 700;
         }
 
         @media (max-width: 768px) {
@@ -280,6 +364,23 @@
         <nav class="year-nav" id="yearNav"></nav>
         <section class="timeline" id="timeline"></section>
     </main>
+
+    <div class="photo-modal" id="photoModal" aria-hidden="true">
+        <div class="photo-modal-content">
+            <div class="photo-modal-head">
+                <strong id="photoModalTitle">Fotografia</strong>
+                <button type="button" id="photoModalCloseBtn">Zavrieť ✕</button>
+            </div>
+            <div class="photo-modal-image-wrap">
+                <img id="photoModalImage" class="photo-modal-image" src="" alt="">
+            </div>
+            <div id="photoModalCaption" class="photo-modal-caption"></div>
+            <div class="photo-modal-nav">
+                <button type="button" id="photoPrevBtn">← Predchádzajúca</button>
+                <button type="button" id="photoNextBtn">Ďalšia →</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         const TIMELINE_DATA = [
@@ -356,6 +457,18 @@
         const yearNav = document.getElementById('yearNav');
         const MIN_PHOTOS_PER_BLOCK = 20;
         const PREVIEW_PHOTOS_PER_BLOCK = 6;
+        const previewOffsetByBlockId = {};
+
+        const photoModal = document.getElementById('photoModal');
+        const photoModalImage = document.getElementById('photoModalImage');
+        const photoModalCaption = document.getElementById('photoModalCaption');
+        const photoModalTitle = document.getElementById('photoModalTitle');
+        const photoModalCloseBtn = document.getElementById('photoModalCloseBtn');
+        const photoPrevBtn = document.getElementById('photoPrevBtn');
+        const photoNextBtn = document.getElementById('photoNextBtn');
+
+        let activeModalBlockId = null;
+        let activeModalPhotoIndex = 0;
 
         function normalizePhotos(photos, minimumCount) {
             if (!Array.isArray(photos) || photos.length === 0) {
@@ -385,36 +498,154 @@
             photos: normalizePhotos(block.photos, MIN_PHOTOS_PER_BLOCK)
         }));
 
+        function getBlockById(blockId) {
+            return TIMELINE_DATA_WITH_MIN_PHOTOS.find((block) => block.id === blockId);
+        }
+
+        function getPreviewSlice(photos, startIndex) {
+            if (!photos.length) {
+                return [];
+            }
+
+            const result = [];
+            for (let index = 0; index < Math.min(PREVIEW_PHOTOS_PER_BLOCK, photos.length); index += 1) {
+                const photoIndex = (startIndex + index) % photos.length;
+                result.push({ photo: photos[photoIndex], photoIndex });
+            }
+
+            return result;
+        }
+
+        function renderTimeline() {
+            timelineContainer.innerHTML = TIMELINE_DATA_WITH_MIN_PHOTOS.map((block) => {
+                const startOffset = Number(previewOffsetByBlockId[block.id] || 0);
+                const previewItems = getPreviewSlice(block.photos, startOffset);
+
+                return `
+                    <article class="year-block" id="${block.id}">
+                        <div class="year-head">
+                            <span class="year-badge">${block.year}</span>
+                            <h2 class="year-title">${block.title}</h2>
+                        </div>
+                        <div class="year-body">
+                            <ul class="year-points">
+                                ${block.points.map((point) => `<li>${point}</li>`).join('')}
+                            </ul>
+                            <div class="photos-grid" data-block-id="${block.id}">
+                                ${previewItems.map(({ photo, photoIndex }) => `
+                                    <figure class="photo-card" data-action="open-photo" data-block-id="${block.id}" data-photo-index="${photoIndex}">
+                                        <img src="${photo.src}" alt="${photo.alt}">
+                                        <figcaption class="photo-caption">${photo.caption}</figcaption>
+                                    </figure>
+                                `).join('')}
+                                ${block.photos.length > PREVIEW_PHOTOS_PER_BLOCK ? `
+                                    <div class="photo-card more-card" data-action="next-preview" data-block-id="${block.id}" title="Posunúť na ďalšie fotografie v poradí">
+                                        +${block.photos.length - PREVIEW_PHOTOS_PER_BLOCK} viac
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        function showModalPhoto() {
+            const block = getBlockById(activeModalBlockId);
+            if (!block || !block.photos.length) {
+                return;
+            }
+
+            const safeIndex = ((activeModalPhotoIndex % block.photos.length) + block.photos.length) % block.photos.length;
+            activeModalPhotoIndex = safeIndex;
+            const photo = block.photos[safeIndex];
+
+            photoModalTitle.textContent = `${block.year} • ${safeIndex + 1}/${block.photos.length}`;
+            photoModalImage.src = photo.src;
+            photoModalImage.alt = photo.alt;
+            photoModalCaption.textContent = photo.caption;
+        }
+
+        function openPhotoModal(blockId, photoIndex) {
+            activeModalBlockId = blockId;
+            activeModalPhotoIndex = Number(photoIndex || 0);
+            showModalPhoto();
+            photoModal.classList.add('open');
+            photoModal.setAttribute('aria-hidden', 'false');
+        }
+
+        function closePhotoModal() {
+            photoModal.classList.remove('open');
+            photoModal.setAttribute('aria-hidden', 'true');
+        }
+
+        function moveModalPhoto(step) {
+            const block = getBlockById(activeModalBlockId);
+            if (!block || !block.photos.length) {
+                return;
+            }
+
+            activeModalPhotoIndex = activeModalPhotoIndex + step;
+            showModalPhoto();
+        }
+
+        timelineContainer.addEventListener('click', (event) => {
+            const target = event.target.closest('[data-action]');
+            if (!target) {
+                return;
+            }
+
+            const action = target.dataset.action;
+            const blockId = target.dataset.blockId;
+            if (!blockId) {
+                return;
+            }
+
+            if (action === 'next-preview') {
+                const block = getBlockById(blockId);
+                if (!block || block.photos.length <= PREVIEW_PHOTOS_PER_BLOCK) {
+                    return;
+                }
+
+                const currentOffset = Number(previewOffsetByBlockId[blockId] || 0);
+                previewOffsetByBlockId[blockId] = (currentOffset + 1) % block.photos.length;
+                renderTimeline();
+                return;
+            }
+
+            if (action === 'open-photo') {
+                openPhotoModal(blockId, Number(target.dataset.photoIndex || 0));
+            }
+        });
+
+        photoModalCloseBtn.addEventListener('click', closePhotoModal);
+        photoPrevBtn.addEventListener('click', () => moveModalPhoto(-1));
+        photoNextBtn.addEventListener('click', () => moveModalPhoto(1));
+        photoModal.addEventListener('click', (event) => {
+            if (event.target === photoModal) {
+                closePhotoModal();
+            }
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (!photoModal.classList.contains('open')) {
+                return;
+            }
+
+            if (event.key === 'Escape') {
+                closePhotoModal();
+            } else if (event.key === 'ArrowLeft') {
+                moveModalPhoto(-1);
+            } else if (event.key === 'ArrowRight') {
+                moveModalPhoto(1);
+            }
+        });
+
         yearNav.innerHTML = TIMELINE_DATA_WITH_MIN_PHOTOS.map((block) => `
             <a href="#${block.id}">${block.year}</a>
         `).join('');
 
-        timelineContainer.innerHTML = TIMELINE_DATA_WITH_MIN_PHOTOS.map((block) => `
-            <article class="year-block" id="${block.id}">
-                <div class="year-head">
-                    <span class="year-badge">${block.year}</span>
-                    <h2 class="year-title">${block.title}</h2>
-                </div>
-                <div class="year-body">
-                    <ul class="year-points">
-                        ${block.points.map((point) => `<li>${point}</li>`).join('')}
-                    </ul>
-                    <div class="photos-grid">
-                        ${block.photos.slice(0, PREVIEW_PHOTOS_PER_BLOCK).map((photo) => `
-                            <figure class="photo-card">
-                                <img src="${photo.src}" alt="${photo.alt}">
-                                <figcaption class="photo-caption">${photo.caption}</figcaption>
-                            </figure>
-                        `).join('')}
-                        ${block.photos.length > PREVIEW_PHOTOS_PER_BLOCK ? `
-                            <div class="photo-card more-card" title="${block.photos.length - PREVIEW_PHOTOS_PER_BLOCK} ďalších fotografií">
-                                +${block.photos.length - PREVIEW_PHOTOS_PER_BLOCK} viac
-                            </div>
-                        ` : ''}
-                    </div>
-                </div>
-            </article>
-        `).join('');
+        renderTimeline();
     </script>
 </body>
 

@@ -279,7 +279,6 @@
                 roleInfo.textContent = `Prihlásený: ${currentUser.username} (${currentUser.role})`;
             } else {
                 composer.style.display = 'none';
-                roleInfo.textContent = 'Čítanie je verejné. Pridávať môže iba blogger/admin.';
             }
 
             const publicPosts = await loadPublicPosts();
