@@ -154,6 +154,20 @@
             font-size: 14px;
         }
 
+        .form-group textarea {
+            padding: 10px;
+            border: 2px solid #ffd700;
+            border-radius: 5px;
+            background: #fff;
+            color: #003399;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.10);
+            min-height: 84px;
+            resize: vertical;
+        }
+
         .form-group select {
             padding: 10px;
             border: 2px solid #ffd700;
@@ -798,6 +812,11 @@
                             <option value="adults_pro">Dospelí - Skúsení (25+)</option>
                         </select>
                     </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="trainingNote">Poznámka k tréningu:</label>
+                        <textarea id="trainingNote" maxlength="1000"
+                            placeholder="Voliteľná poznámka pre hráčov a rodičov"></textarea>
+                    </div>
                     <button type="button" class="btn-create" onclick="createTraining()">
                         <i class="fas fa-plus"></i> Vytvoriť
                     </button>
@@ -925,6 +944,7 @@
                     type: item.type,
                     duration: item.duration,
                     category: item.category,
+                    note: item.note || '',
                     createdBy: item.createdBy,
                     isActive: item.isActive,
                     attendance: Array.isArray(item.attendance)
@@ -1092,6 +1112,15 @@
             minuteSelect.value = '00';
         }
 
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         async function createTraining() {
             console.log('createTraining called');
 
@@ -1102,8 +1131,9 @@
             const type = document.getElementById('trainingType').value;
             const duration = document.getElementById('trainingDuration').value;
             const category = document.getElementById('trainingCategory').value;
+            const note = document.getElementById('trainingNote').value.trim();
 
-            console.log('Form values:', { date, time, type, duration, category });
+            console.log('Form values:', { date, time, type, duration, category, note });
 
             const errorDiv = document.getElementById('trainingError');
             if (!date || !time || !type || !duration || !category) {
@@ -1138,7 +1168,8 @@
                         time,
                         type,
                         duration: Number(duration),
-                        category
+                        category,
+                        note: note || null
                     })
                 });
 
@@ -1165,6 +1196,7 @@
             document.getElementById('trainingType').value = '';
             document.getElementById('trainingDuration').value = '90';
             document.getElementById('trainingCategory').value = '';
+            document.getElementById('trainingNote').value = '';
 
             refreshCoachRoster();
             refreshPlayerTrainings();
@@ -1218,6 +1250,9 @@
                     const date = new Date(t.date).toLocaleDateString('sk-SK');
                     const typeLabel = getTypeLabel(t.type);
                     const categoryLabel = getCategoryLabel(t.category);
+                    const noteHtml = t.note
+                        ? `<p><i class="fas fa-note-sticky"></i> Poznámka: ${escapeHtml(t.note)}</p>`
+                        : '';
 
                     let attending = 0, notAttending = 0, unknown = 0;
                     Object.values(t.attendance || {}).forEach(s => {
@@ -1236,6 +1271,7 @@
                                 <h3><i class="fas fa-futbol"></i> ${typeLabel}</h3>
                                 <p><i class="fas fa-calendar"></i> ${date} o ${t.time}</p>
                                 <p><i class="fas fa-users"></i> ${categoryLabel} | ${t.duration} min</p>
+                                ${noteHtml}
                                 <p style="color: ${statusInfo.color};">
                                     ${statusInfo.text}
                                 </p>
@@ -1323,6 +1359,9 @@
                 const date = new Date(t.date).toLocaleDateString('sk-SK');
                 const typeLabel = getTypeLabel(t.type);
                 const statusInfo = getTrainingStatus(t);
+                const noteHtml = t.note
+                    ? `<p><i class="fas fa-note-sticky"></i> Poznámka: ${escapeHtml(t.note)}</p>`
+                    : '';
 
                 peopleToDisplay.forEach(person => {
                     const key = t.id + '_' + person;
@@ -1334,6 +1373,7 @@
                                 <h4>${typeLabel}</h4>
                                 <p><i class="fas fa-calendar"></i> ${date} o ${t.time}</p>
                                 <p><i class="fas fa-clock"></i> ${t.duration} min</p>
+                                ${noteHtml}
                                 <p style="color:${statusInfo.color};">
                                     ${statusInfo.text}
                                 </p>

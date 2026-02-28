@@ -105,6 +105,7 @@ model Training {
   type      TrainingType
   duration  Int
   category  TrainingCategory
+  note      String?
   isActive  Boolean          @default(true)
   createdAt DateTime         @default(now())
 

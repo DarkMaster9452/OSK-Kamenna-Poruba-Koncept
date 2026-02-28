@@ -14,6 +14,15 @@ const PARENT_CHILDREN_MAP = {};
 
 const PLAYER_NAME_MAP = {};
 
+function escapeHtml(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 function isQuarterHourTime(value) {
     const match = String(value || '').match(/^(\d{2}):(\d{2})$/);
     if (!match) {
@@ -83,6 +92,7 @@ async function loadTrainingsFromApi() {
         type: item.type,
         duration: item.duration,
         category: item.category,
+        note: item.note || '',
         createdBy: item.createdBy,
         createdDate: item.createdAt,
         isActive: item.isActive,
@@ -153,6 +163,10 @@ function initializeTrainingView() {
                                 <option value="adults_young">Dospelí - Mladí (18-25)</option>
                                 <option value="adults_pro">Dospelí - Skúsení (25+)</option>
                             </select>
+                        </div>
+                        <div style="grid-column: 1 / -1;">
+                            <label style="display: block; margin-bottom: 8px; color: #ffd700; font-weight: bold;">Poznámka k tréningu:</label>
+                            <textarea id="coachTrainingNote" maxlength="1000" placeholder="Voliteľná poznámka pre hráčov a rodičov" style="width: 100%; padding: 10px; border: 1px solid #ffd700; border-radius: 5px; background: rgba(255, 255, 255, 0.1); color: white; font-family: inherit; min-height: 80px; resize: vertical;"></textarea>
                         </div>
                         <div>
                             <button type="button" onclick="createTraining()" style="width: 100%; padding: 12px; background: #ffd700; color: #003399; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px; transition: all 0.3s;">
@@ -238,6 +252,8 @@ async function createTraining() {
     const type = document.getElementById('coachTrainingType').value;
     const duration = document.getElementById('coachTrainingDuration').value;
     const category = document.getElementById('coachTrainingCategory').value;
+    const noteElement = document.getElementById('coachTrainingNote');
+    const note = noteElement ? noteElement.value.trim() : '';
 
     if (!date || !time || !type || !duration || !category) {
         alert('Prosím vyplňte všetky polia!');
@@ -263,7 +279,8 @@ async function createTraining() {
                 time,
                 type,
                 duration: Number(duration),
-                category
+                category,
+                note: note || null
             })
         });
 
@@ -288,6 +305,9 @@ async function createTraining() {
     document.getElementById('coachTrainingType').value = '';
     document.getElementById('coachTrainingDuration').value = '90';
     document.getElementById('coachTrainingCategory').value = '';
+    if (noteElement) {
+        noteElement.value = '';
+    }
 
     refreshCoachRoster();
     refreshPlayerTrainings();
@@ -324,6 +344,9 @@ function refreshPlayerTrainings() {
         const date = new Date(training.date);
         const formattedDate = date.toLocaleDateString('sk-SK');
         const typeLabel = getTrainingTypeLabel(training.type);
+        const noteHtml = training.note
+            ? `<p style="margin: 5px 0; color: rgba(255, 255, 255, 0.85);"><i class="fas fa-note-sticky"></i> Poznámka: ${escapeHtml(training.note)}</p>`
+            : '';
         
         html += `
             <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2); padding: 20px; border-radius: 10px; margin-bottom: 15px;">
@@ -336,6 +359,7 @@ function refreshPlayerTrainings() {
                         <p style="margin: 5px 0; color: rgba(255, 255, 255, 0.8);">
                             <i class="fas fa-clock"></i> Trvanie: ${training.duration} minút
                         </p>
+                        ${noteHtml}
                         <p style="margin: 5px 0; color: ${training.isActive ? '#2ecc71' : '#e74c3c'}; font-weight: bold;">
                             ${training.isActive ? '🟢 Aktívny tréning' : '🔴 Uzavretý tréning'}
                         </p>
@@ -491,6 +515,9 @@ function refreshCoachRoster() {
         const formattedDate = date.toLocaleDateString('sk-SK', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         const typeLabel = getTrainingTypeLabel(training.type);
         const categoryLabel = getTrainingCategoryLabel(training.category);
+        const noteHtml = training.note
+            ? `<p style="margin: 8px 0; color: rgba(255, 255, 255, 0.9);"><i class="fas fa-note-sticky"></i> Poznámka: ${escapeHtml(training.note)}</p>`
+            : '';
         
         // Get attendance for this training - now with three categories
         let attendingPlayers = [];
@@ -533,6 +560,7 @@ function refreshCoachRoster() {
                             <p style="margin: 8px 0; color: #ffd700; font-weight: bold;">
                                 <i class="fas fa-users"></i> Kategória: ${categoryLabel}
                             </p>
+                            ${noteHtml}
                             <p style="margin: 8px 0; color: ${training.isActive ? '#2ecc71' : '#e74c3c'}; font-weight: bold;">
                                 ${training.isActive ? '🟢 Aktívny tréning - hráči môžu meniť odpovede' : '🔴 Uzavretý tréning - žiadne zmeny'}
                             </p>

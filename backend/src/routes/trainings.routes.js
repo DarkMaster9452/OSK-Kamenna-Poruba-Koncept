@@ -21,7 +21,8 @@ const createTrainingSchema = z.object({
   time: z.string().min(3).max(10),
   type: z.enum(['technical', 'tactical', 'physical', 'friendly']),
   duration: z.number().int().min(30).max(180),
-  category: z.enum(['pripravky', 'ziaci', 'dorastenci', 'adults_young', 'adults_pro'])
+  category: z.enum(['pripravky', 'ziaci', 'dorastenci', 'adults_young', 'adults_pro']),
+  note: z.string().trim().max(1000).optional().nullable()
 });
 
 const attendanceSchema = z.object({
@@ -65,6 +66,7 @@ router.get('/', requireAuth, async (req, res) => {
     type: row.type,
     duration: row.duration,
     category: row.category,
+    note: row.note,
     isActive: row.isActive,
     attendance: row.attendances,
     createdAt: row.createdAt,
@@ -78,7 +80,11 @@ router.post('/', requireAuth, requireRole('coach', 'admin'), validateBody(create
     return res.status(400).json({ message: 'Čas tréningu musí byť po 15 minútach (00, 15, 30, 45).' });
   }
 
-  const row = await createTraining(req.body, req.user.id);
+  const normalizedNote = typeof req.body.note === 'string' ? req.body.note.trim() : null;
+  const row = await createTraining({
+    ...req.body,
+    note: normalizedNote || null
+  }, req.user.id);
   const item = {
     id: row.id,
     date: row.date,
@@ -86,6 +92,7 @@ router.post('/', requireAuth, requireRole('coach', 'admin'), validateBody(create
     type: row.type,
     duration: row.duration,
     category: row.category,
+    note: row.note,
     isActive: row.isActive,
     createdAt: row.createdAt,
     createdBy: row.createdBy.username
@@ -100,7 +107,8 @@ router.post('/', requireAuth, requireRole('coach', 'admin'), validateBody(create
       date: row.date,
       time: row.time,
       category: row.category,
-      type: row.type
+      type: row.type,
+      hasNote: Boolean(row.note)
     }
   });
 
