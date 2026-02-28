@@ -18,6 +18,16 @@ const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
 
+const trustProxyRaw = String(env.trustProxy || 'false').trim().toLowerCase();
+if (trustProxyRaw === 'true') {
+  app.set('trust proxy', true);
+} else if (trustProxyRaw === 'false') {
+  app.set('trust proxy', false);
+} else {
+  const parsedTrustProxy = Number(trustProxyRaw);
+  app.set('trust proxy', Number.isNaN(parsedTrustProxy) ? trustProxyRaw : parsedTrustProxy);
+}
+
 function escapeForRegex(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
