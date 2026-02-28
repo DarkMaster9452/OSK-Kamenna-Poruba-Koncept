@@ -434,6 +434,19 @@ function playerCategoriesForTrainingCategory(trainingCategory) {
   return map[trainingCategory] || [];
 }
 
+function trainingCategoriesForPlayerCategory(playerCategory) {
+  const map = {
+    pripravka_u9: ['pripravky'],
+    pripravka_u11: ['pripravky'],
+    ziaci: ['ziaci'],
+    dorastenci: ['dorastenci'],
+    adults_young: ['adults_young'],
+    adults_pro: ['adults_pro']
+  };
+
+  return map[playerCategory] || [];
+}
+
 async function listActivePlayerEmailsByTrainingCategory(trainingCategory) {
   const playerCategories = playerCategoriesForTrainingCategory(trainingCategory);
   if (!playerCategories.length) {
@@ -462,8 +475,24 @@ async function listActivePlayerEmailsByTrainingCategory(trainingCategory) {
   });
 }
 
-async function listTrainings() {
+async function listTrainings(viewerUser) {
+  const where = {};
+
+  if (viewerUser?.role === 'coach') {
+    where.createdById = viewerUser.id;
+  } else if (viewerUser?.role === 'player' || viewerUser?.role === 'parent') {
+    const allowedCategories = trainingCategoriesForPlayerCategory(viewerUser.playerCategory);
+    if (!allowedCategories.length) {
+      return [];
+    }
+
+    where.category = {
+      in: allowedCategories
+    };
+  }
+
   return prisma.training.findMany({
+    where,
     orderBy: { createdAt: 'desc' },
     include: {
       createdBy: {

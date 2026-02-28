@@ -57,7 +57,7 @@ async function writeAuditSafe(payload) {
 }
 
 router.get('/', requireAuth, async (req, res) => {
-  const rows = await listTrainings();
+  const rows = await listTrainings(req.user);
   const items = rows.map((row) => ({
     id: row.id,
     date: row.date,
@@ -170,6 +170,10 @@ router.patch('/:id/close', requireAuth, requireRole('coach', 'admin'), async (re
     return res.status(404).json({ message: 'Tréning neexistuje.' });
   }
 
+  if (req.user.role === 'coach' && training.createdById !== req.user.id) {
+    return res.status(403).json({ message: 'Nemáte oprávnenie uzavrieť cudzí tréning.' });
+  }
+
   if (!training.isActive) {
     return res.status(400).json({ message: 'Tréning je už uzavretý.' });
   }
@@ -199,6 +203,10 @@ router.delete('/:id', requireAuth, requireRole('coach', 'admin'), async (req, re
   const training = await findTrainingById(req.params.id);
   if (!training) {
     return res.status(404).json({ message: 'Tréning neexistuje.' });
+  }
+
+  if (req.user.role === 'coach' && training.createdById !== req.user.id) {
+    return res.status(403).json({ message: 'Nemáte oprávnenie odstrániť cudzí tréning.' });
   }
 
   await deleteTraining(training.id);

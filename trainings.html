@@ -1427,28 +1427,21 @@
             refreshPlayerTrainings();
         }
 
-        // Auto-close trainings and move 'unknown' to 'no' if start time has passed
-        function autoCloseTrainingsByTime() {
-            const now = new Date();
-            trainings.forEach(t => {
-                if (t.isActive && t.date && t.time) {
-                    // Parse date and time
-                    const dt = new Date(t.date + 'T' + t.time);
-                    if (now >= dt) {
-                        t.isActive = false;
-                    }
-                }
-            });
+        // Keep UI in sync with backend data
+        async function syncTrainingsFromServer() {
+            await loadTrainingsData();
             refreshCoachRoster();
             refreshPlayerTrainings();
         }
 
-        // Kontrola každú minútu
-        setInterval(autoCloseTrainingsByTime, 60000);
+        // Synchronizácia každú minútu
+        setInterval(syncTrainingsFromServer, 60000);
         // Skontroluj aj hneď po načítaní
         window.addEventListener('load', function () {
             initializeTrainingTimeSelectors();
-            autoCloseTrainingsByTime();
+            syncTrainingsFromServer().catch((error) => {
+                console.error(error);
+            });
         });
 
         async function deleteTraining(trainingId) {
