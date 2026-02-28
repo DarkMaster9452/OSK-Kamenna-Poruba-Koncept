@@ -603,6 +603,10 @@ async function deleteAnnouncement(id) {
 }
 
 async function listBlogPosts() {
+  if (!prisma.blogPost) {
+    throw new Error('Prisma Client neobsahuje model blogPost. Spustite prisma generate a redeploy backendu.');
+  }
+
   return prisma.blogPost.findMany({
     orderBy: { createdAt: 'desc' },
     include: {
@@ -614,6 +618,10 @@ async function listBlogPosts() {
 }
 
 async function createBlogPost(input, createdById) {
+  if (!prisma.blogPost) {
+    throw new Error('Prisma Client neobsahuje model blogPost. Spustite prisma generate a redeploy backendu.');
+  }
+
   return prisma.blogPost.create({
     data: {
       title: input.title,
@@ -630,12 +638,20 @@ async function createBlogPost(input, createdById) {
 }
 
 async function findBlogPostById(id) {
+  if (!prisma.blogPost) {
+    throw new Error('Prisma Client neobsahuje model blogPost. Spustite prisma generate a redeploy backendu.');
+  }
+
   return prisma.blogPost.findUnique({
     where: { id }
   });
 }
 
 async function deleteBlogPost(id) {
+  if (!prisma.blogPost) {
+    throw new Error('Prisma Client neobsahuje model blogPost. Spustite prisma generate a redeploy backendu.');
+  }
+
   return prisma.blogPost.delete({
     where: { id }
   });

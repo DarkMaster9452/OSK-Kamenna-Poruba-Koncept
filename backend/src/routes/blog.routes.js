@@ -27,10 +27,35 @@ async function writeAuditSafe(payload) {
 }
 
 router.get('/', async (req, res) => {
-  const rows = await listBlogPosts();
-  const items = rows
-    .filter((row) => row.published)
-    .map((row) => ({
+  try {
+    const rows = await listBlogPosts();
+    const items = rows
+      .filter((row) => row.published)
+      .map((row) => ({
+        id: row.id,
+        title: row.title,
+        content: row.content,
+        published: row.published,
+        createdAt: row.createdAt,
+        updatedAt: row.updatedAt,
+        createdBy: row.createdBy.username
+      }));
+
+    return res.json({ items });
+  } catch (error) {
+    console.error('Blog list failed:', error);
+    return res.status(500).json({ message: error.message || 'Nepodarilo sa načítať blog príspevky.' });
+  }
+});
+
+router.get('/manage', requireAuth, requireRole('blogger', 'admin'), async (req, res) => {
+  try {
+    const rows = await listBlogPosts();
+    const visibleRows = req.user.role === 'admin'
+      ? rows
+      : rows.filter((row) => row.createdById === req.user.id);
+
+    const items = visibleRows.map((row) => ({
       id: row.id,
       title: row.title,
       content: row.content,
@@ -40,77 +65,72 @@ router.get('/', async (req, res) => {
       createdBy: row.createdBy.username
     }));
 
-  return res.json({ items });
-});
-
-router.get('/manage', requireAuth, requireRole('blogger', 'admin'), async (req, res) => {
-  const rows = await listBlogPosts();
-  const visibleRows = req.user.role === 'admin'
-    ? rows
-    : rows.filter((row) => row.createdById === req.user.id);
-
-  const items = visibleRows.map((row) => ({
-    id: row.id,
-    title: row.title,
-    content: row.content,
-    published: row.published,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
-    createdBy: row.createdBy.username
-  }));
-
-  return res.json({ items });
+    return res.json({ items });
+  } catch (error) {
+    console.error('Blog manage list failed:', error);
+    return res.status(500).json({ message: error.message || 'Nepodarilo sa načítať blog príspevky.' });
+  }
 });
 
 router.post('/', requireAuth, requireRole('blogger', 'admin'), validateBody(createBlogPostSchema), async (req, res) => {
-  const row = await createBlogPost(req.body, req.user.id);
-  const item = {
-    id: row.id,
-    title: row.title,
-    content: row.content,
-    published: row.published,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
-    createdBy: row.createdBy.username
-  };
-
-  await writeAuditSafe({
-    actorUserId: req.user.id,
-    action: 'blog_post_created',
-    entityType: 'blog_post',
-    entityId: row.id,
-    details: {
+  try {
+    const row = await createBlogPost(req.body, req.user.id);
+    const item = {
+      id: row.id,
       title: row.title,
-      published: row.published
-    }
-  });
+      content: row.content,
+      published: row.published,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+      createdBy: row.createdBy.username
+    };
 
-  return res.status(201).json({ item });
+    await writeAuditSafe({
+      actorUserId: req.user.id,
+      action: 'blog_post_created',
+      entityType: 'blog_post',
+      entityId: row.id,
+      details: {
+        title: row.title,
+        published: row.published
+      }
+    });
+
+    return res.status(201).json({ item });
+  } catch (error) {
+    console.error('Blog create failed:', error);
+    return res.status(500).json({ message: error.message || 'Nepodarilo sa vytvoriť blog príspevok.' });
+  }
 });
 
 router.delete('/:id', requireAuth, requireRole('blogger', 'admin'), async (req, res) => {
-  const row = await findBlogPostById(req.params.id);
-  if (!row) {
-    return res.status(404).json({ message: 'Blog príspevok neexistuje.' });
-  }
-
-  if (req.user.role === 'blogger' && row.createdById !== req.user.id) {
-    return res.status(403).json({ message: 'Nemáte oprávnenie odstrániť cudzí blog príspevok.' });
-  }
-
-  await deleteBlogPost(req.params.id);
-
-  await writeAuditSafe({
-    actorUserId: req.user.id,
-    action: 'blog_post_deleted',
-    entityType: 'blog_post',
-    entityId: row.id,
-    details: {
-      title: row.title
+  try {
+    const row = await findBlogPostById(req.params.id);
+    if (!row) {
+      return res.status(404).json({ message: 'Blog príspevok neexistuje.' });
     }
-  });
 
-  return res.status(204).send();
+    if (req.user.role === 'blogger' && row.createdById !== req.user.id) {
+      return res.status(403).json({ message: 'Nemáte oprávnenie odstrániť cudzí blog príspevok.' });
+    }
+
+    await deleteBlogPost(req.params.id);
+
+    await writeAuditSafe({
+      actorUserId: req.user.id,
+      action: 'blog_post_deleted',
+      entityType: 'blog_post',
+      entityId: row.id,
+      details: {
+        title: row.title
+      }
+    });
+
+    return res.status(204).send();
+  } catch (error) {
+    console.error('Blog delete failed:', error);
+    return res.status(500).json({ message: error.message || 'Nepodarilo sa odstrániť blog príspevok.' });
+  }
 });
 
 module.exports = router;
