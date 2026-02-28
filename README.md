@@ -32,7 +32,6 @@ Citlivé dáta (účty, roly, oznamy, ankety, tréningy a účasť) sú spravova
 - tréningy: create/list/attendance/close/delete
 - email notifikácie pri vytvorení tréningu pre hráčov vo vybranej kategórii (ak je nastavené SMTP)
 
-
 - udalosti: create/list/delete (s cieľovou skupinou)
 - ankety: create/list/vote/close/delete
 - audit záznamy vybraných akcií v backende
@@ -59,11 +58,11 @@ Citlivé dáta (účty, roly, oznamy, ankety, tréningy a účasť) sú spravova
 ### Backend (`backend/`)
 
 - `src/app.js` — inicializácia Express app
-- `src/server.js` — štart servera
 - `src/routes/` — API routy (`auth`, `trainings`, `announcements`, `polls`, ...)
 - `src/middleware/` — auth, role guard, CSRF, error handling
 - `prisma/schema.prisma` — dátový model
 - `.env.example` — vzor konfigurácie
+- `.env.vercel.example` — šablóna pre Vercel environment variables
 
 ## 6) API prehľad
 
@@ -164,40 +163,44 @@ Potrebné env premenné:
 - verejné časti webu fungujú ako prezentačný web klubu
 - interné moduly (tréningy, udalosti, ankety) sú riešené cez API
 
-## 10) Deploy: Render + Vercel (Neon už máš)
+## 10) Deploy: Vercel (frontend + backend) + Neon
 
-Táto verzia repozitára je pripravená na:
+Táto verzia repozitára je pripravená na jeden Vercel projekt:
 
-- **Backend na Render** cez `render.yaml`
-- **Frontend na Vercel** cez `vercel.json` rewrite `/api/* -> Render backend`
+- **Frontend**: statické HTML súbory z rootu
+- **Backend**: Vercel serverless funkcia cez `api/[...all].js` (Express app z `backend/src/app.js`)
 
 ### Kroky
 
-1. **Render (backend)**
+1. **Import do Vercel**
 
-- v Render vyber **Blueprint deploy** z tohto repozitára (použije `render.yaml`)
-- nastav secrety:
-  - `DATABASE_URL` = Neon connection string
-  - `JWT_ACCESS_SECRET` = dlhý náhodný secret
-- po deploy si skontroluj health: `https://<render-service>.onrender.com/api/health`
+- importni tento repozitár ako nový Vercel projekt
+- framework nechaj `Other`
+- root directory nechaj `/` (koreň)
 
-2. **Vercel (frontend)**
+2. **Environment Variables vo Vercel projekte**
 
-- importni ten istý repozitár do Vercel (root projekt)
-- po prvom deploy uprav v `vercel.json` hodnotu `destination` na reálnu Render URL, ak sa líši od:
-  - `https://osk-kamenna-poruba-backend.onrender.com`
-- redeployni frontend
+- rýchla šablóna je v `backend/.env.vercel.example`
 
-3. **CORS + cookie doména**
+- `NODE_ENV=production`
+- `DATABASE_URL=<Neon connection string>`
+- `JWT_ACCESS_SECRET=<dlhý náhodný secret>`
+- `FRONTEND_ORIGIN=https://<tvoja-vercel-domena>,https://*.vercel.app`
+- `COOKIE_SECURE=true`
+- `CSRF_PROTECTION=true`
+- `TRUST_PROXY=1`
 
-- v Render env nastav `FRONTEND_ORIGIN` na tvoju Vercel doménu (napr. `https://your-app.vercel.app`)
-- pre produkciu nechaj `COOKIE_SECURE=true`
+Voliteľné:
+
+- `JWT_ACCESS_EXPIRES`, `COOKIE_NAME`
+- `EMAIL_NOTIFICATIONS_ENABLED`, `SMTP_*`
+- `SPORTSNET_*`
+
+3. **Deploy + kontrola**
+
+- spusti deploy vo Verceli
+- health endpoint over cez: `https://<tvoja-vercel-domena>/api/health`
 
 ### Poznámka
 
-Frontend už používa:
-
-- lokálne: `http://localhost:4000/api`
-- produkčne: `/api` (proxy cez Vercel rewrite)
-
-Takto zostane login/cookie flow funkčný bez hardcoded produkčného backend hostu v HTML.
+Frontend používa v produkcii relatívne `/api` endpointy, takže netreba žiadny externý proxy host ani hardcoded backend URL.

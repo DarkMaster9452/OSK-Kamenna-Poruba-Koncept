@@ -1,8 +1,8 @@
 {
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "https://osk-kamenna-poruba-backend.onrender.com/api/$1"
+  "installCommand": "npm install --prefix backend",
+  "functions": {
+    "api/[...all].js": {
+      "includeFiles": "backend/prisma/**"
     }
-  ]
+  }
 }
