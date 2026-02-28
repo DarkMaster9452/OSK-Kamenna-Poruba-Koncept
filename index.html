@@ -2418,6 +2418,12 @@
             var logo = document.getElementById('mainLogo');
             if (logo) {
                 logo.addEventListener('click', function () {
+                    const isMobileView = window.matchMedia('(max-width: 900px)').matches;
+                    if (isMobileView) {
+                        window.location.href = 'index.html';
+                        return;
+                    }
+
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 });
             }
