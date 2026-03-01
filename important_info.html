@@ -299,6 +299,12 @@
             if (host === 'localhost' || host === '127.0.0.1') {
                 return 'http://localhost:4000/api';
             }
+            const configuredRaw = window.localStorage ? window.localStorage.getItem('OSK_API_BASE') : '';
+            const configured = String(configuredRaw || '').trim();
+            if (configured) {
+                const normalized = configured.replace(/\/+$/, '');
+                return normalized.endsWith('/api') ? normalized : `${normalized}/api`;
+            }
             return '/api';
         }
 
