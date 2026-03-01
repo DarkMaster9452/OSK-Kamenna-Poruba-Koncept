@@ -542,9 +542,7 @@ async function listTrainings(viewerUser) {
 
   const where = {};
 
-  if (viewerUser?.role === 'coach') {
-    where.createdById = viewerUser.id;
-  } else if (viewerUser?.role === 'player' || viewerUser?.role === 'parent') {
+  if (viewerUser?.role === 'player' || viewerUser?.role === 'parent') {
     const allowedCategories = trainingCategoriesForPlayerCategory(viewerUser.playerCategory);
     if (!allowedCategories.length) {
       return [];
@@ -580,11 +578,47 @@ async function findTrainingById(id) {
 }
 
 async function createTraining(input, createdById) {
-  return prisma.training.create({
-    data: {
-      ...input,
-      createdById
-    },
+  const createdTraining = await prisma.$transaction(async (tx) => {
+    const training = await tx.training.create({
+      data: {
+        ...input,
+        createdById
+      }
+    });
+
+    const playerCategories = playerCategoriesForTrainingCategory(input.category);
+    if (playerCategories.length) {
+      const players = await tx.user.findMany({
+        where: {
+          role: 'player',
+          isActive: true,
+          playerCategory: {
+            in: playerCategories
+          }
+        },
+        select: {
+          username: true
+        }
+      });
+
+      if (players.length) {
+        await tx.trainingAttendance.createMany({
+          data: players.map((player) => ({
+            trainingId: training.id,
+            playerUsername: player.username,
+            status: 'unknown',
+            updatedById: createdById
+          })),
+          skipDuplicates: true
+        });
+      }
+    }
+
+    return training;
+  });
+
+  return prisma.training.findUnique({
+    where: { id: createdTraining.id },
     include: {
       createdBy: {
         select: { username: true }
