@@ -2,13 +2,17 @@ const dotenv = require('dotenv');
 
 dotenv.config({ override: true });
 
-const frontendOriginRaw = process.env.FRONTEND_ORIGIN || 'http://127.0.0.1:5500,http://localhost:5500,http://127.0.0.1:5501,http://localhost:5501';
+const nodeEnvRaw = String(process.env.NODE_ENV || 'development');
+const defaultFrontendOrigin = nodeEnvRaw === 'production'
+  ? 'https://*.vercel.app'
+  : 'http://127.0.0.1:5500,http://localhost:5500,http://127.0.0.1:5501,http://localhost:5501';
+const frontendOriginRaw = process.env.FRONTEND_ORIGIN || defaultFrontendOrigin;
 const frontendOriginsNormalized = frontendOriginRaw.includes('YOUR_VERCEL_DOMAIN')
   ? 'https://*.vercel.app,http://127.0.0.1:5500,http://localhost:5500,http://127.0.0.1:5501,http://localhost:5501'
   : frontendOriginRaw;
 
 const env = {
-  nodeEnv: process.env.NODE_ENV || 'development',
+  nodeEnv: nodeEnvRaw,
   port: Number(process.env.PORT || 4000),
   trustProxy: process.env.TRUST_PROXY || (String(process.env.NODE_ENV || 'development') === 'production' ? '1' : 'false'),
   frontendOrigins: frontendOriginsNormalized
