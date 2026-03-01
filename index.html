@@ -357,6 +357,38 @@
             flex-shrink: 0;
         }
 
+        #loginBtnText {
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        @media (min-width: 769px) {
+            header.role-heavy-nav .header-top {
+                padding: 14px 20px;
+                gap: 12px;
+                align-items: flex-start;
+            }
+
+            header.role-heavy-nav nav ul {
+                gap: 8px 10px;
+                flex-wrap: wrap;
+            }
+
+            header.role-heavy-nav nav a {
+                font-size: 14px;
+            }
+
+            header.role-heavy-nav .header-actions {
+                align-self: flex-start;
+            }
+
+            header.role-heavy-nav #loginBtnText {
+                max-width: 150px;
+            }
+        }
+
         .mobile-login-item {
             display: none;
         }
@@ -2370,6 +2402,25 @@
             document.documentElement.style.setProperty('--header-offset', `${header.offsetHeight}px`);
         }
 
+        function applyRoleNavbarMode() {
+            const header = document.querySelector('header');
+            if (!header) return;
+
+            const role = currentUser && currentUser.isLoggedIn ? currentUser.role : null;
+            const compactRoles = ['coach', 'admin', 'blogger'];
+            const shouldCompact = compactRoles.includes(role);
+
+            header.classList.toggle('role-heavy-nav', shouldCompact);
+            updateHeaderScrollOffset();
+        }
+
+        function formatNavbarUsername(value) {
+            const text = String(value || '').trim();
+            if (!text) return '';
+            if (text.length <= 18) return text;
+            return `${text.slice(0, 17)}…`;
+        }
+
         function toggleAboutMore() {
             const content = document.getElementById('aboutMoreContent');
             const button = document.getElementById('aboutToggleBtn');
@@ -2396,6 +2447,7 @@
                 if (mgmtBtn) mgmtBtn.style.display = 'none';
             }
 
+            applyRoleNavbarMode();
             updateHeaderScrollOffset();
         }
         // ...existing code...
@@ -2883,10 +2935,10 @@
             const infoNavLink = document.getElementById('infoNavLink');
             if (currentUser.isLoggedIn) {
                 const fullUsername = currentUser.username || '';
-                loginBtn.textContent = fullUsername;
+                loginBtn.textContent = formatNavbarUsername(fullUsername);
                 loginBtn.title = fullUsername;
                 if (mobileLoginBtn) {
-                    mobileLoginBtn.textContent = fullUsername;
+                    mobileLoginBtn.textContent = formatNavbarUsername(fullUsername);
                     mobileLoginBtn.title = fullUsername;
                 }
                 trainingNavLink.style.display = 'block';
@@ -2901,6 +2953,7 @@
                 trainingNavLink.style.display = 'none';
                 infoNavLink.style.display = 'none';
             }
+            applyRoleNavbarMode();
             updateImportantInfoNavBadge();
             updateHeaderScrollOffset();
         }
