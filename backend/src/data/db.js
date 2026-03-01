@@ -1,6 +1,12 @@
 const { PrismaClient } = require('@prisma/client');
 
-const prisma = new PrismaClient();
+const globalForPrisma = globalThis;
+
+if (!globalForPrisma.__oskPrisma) {
+	globalForPrisma.__oskPrisma = new PrismaClient();
+}
+
+const prisma = globalForPrisma.__oskPrisma;
 
 const RETRY_DELAY_MS = 1200;
 const MAX_ATTEMPTS = 2;
