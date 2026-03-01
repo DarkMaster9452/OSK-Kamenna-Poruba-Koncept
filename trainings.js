@@ -68,11 +68,6 @@ function getApiBase() {
         return normalized.endsWith('/api') ? normalized : `${normalized}/api`;
     }
 
-    const vercelBackendOrigin = 'https://osk-kamenna-poruba-koncept.vercel.app';
-    if (host.endsWith('.vercel.app') && host !== 'osk-kamenna-poruba-koncept.vercel.app') {
-        return `${vercelBackendOrigin}/api`;
-    }
-
     return '/api';
 }
 
