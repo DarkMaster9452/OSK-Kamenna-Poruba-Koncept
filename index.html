@@ -2552,7 +2552,7 @@
         }
 
         async function fetchSessionUser() {
-            const response = await fetch(`${API_BASE}/auth/me`, {
+            const response = await fetch(`${API_BASE}/me`, {
                 method: 'GET',
                 credentials: 'include'
             });
@@ -3038,7 +3038,7 @@
             let logoutSucceeded = false;
             try {
                 const csrfToken = await ensureCsrfToken();
-                const response = await fetch(`${API_BASE}/auth/logout`, {
+                const response = await fetch(`${API_BASE}/logout`, {
                     method: 'POST',
                     credentials: 'include',
                     headers: {
@@ -3096,7 +3096,7 @@
 
             try {
                 const csrfToken = await ensureCsrfToken();
-                const response = await fetch(`${API_BASE}/auth/change-password`, {
+                const response = await fetch(`${API_BASE}/change-password`, {
                     method: 'POST',
                     credentials: 'include',
                     headers: {
@@ -3193,7 +3193,7 @@
 
             try {
                 const csrfToken = await ensureCsrfToken();
-                const loginResponse = await fetch(`${API_BASE}/auth/login`, {
+                const loginResponse = await fetch(`${API_BASE}/login`, {
                     method: 'POST',
                     credentials: 'include',
                     headers: {

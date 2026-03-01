@@ -216,7 +216,7 @@
 
         async function loadSessionUser() {
             try {
-                const response = await fetch(`${API_BASE}/auth/me`, { method: 'GET', credentials: 'include' });
+                const response = await fetch(`${API_BASE}/me`, { method: 'GET', credentials: 'include' });
                 if (!response.ok) return null;
                 const payload = await response.json();
                 return payload.user || null;

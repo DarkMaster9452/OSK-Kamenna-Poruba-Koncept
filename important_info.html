@@ -313,7 +313,7 @@
 
         (async function () {
             try {
-                const response = await fetch(`${API_BASE}/auth/me`, {
+                const response = await fetch(`${API_BASE}/me`, {
                     method: 'GET',
                     credentials: 'include'
                 });
@@ -938,7 +938,7 @@
             await loadState();
             if (!currentUser || !currentUser.isLoggedIn) {
                 try {
-                    const response = await fetch(`${API_BASE}/auth/me`, {
+                    const response = await fetch(`${API_BASE}/me`, {
                         method: 'GET',
                         credentials: 'include'
                     });

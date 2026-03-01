@@ -975,7 +975,7 @@
         window.addEventListener('load', async function () {
             let sessionUser = null;
             try {
-                const response = await fetch(`${API_BASE}/auth/me`, {
+                const response = await fetch(`${API_BASE}/me`, {
                     method: 'GET',
                     credentials: 'include'
                 });
@@ -1676,7 +1676,7 @@
         async function handleLogout() {
             try {
                 const csrfToken = await ensureCsrfToken();
-                await fetch(`${API_BASE}/auth/logout`, {
+                await fetch(`${API_BASE}/logout`, {
                     method: 'POST',
                     credentials: 'include',
                     headers: {
@@ -1724,7 +1724,7 @@
 
             try {
                 const csrfToken = await ensureCsrfToken();
-                const response = await fetch(`${API_BASE}/auth/change-password`, {
+                const response = await fetch(`${API_BASE}/change-password`, {
                     method: 'POST',
                     credentials: 'include',
                     headers: {

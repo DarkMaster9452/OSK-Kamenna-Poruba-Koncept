@@ -184,7 +184,7 @@
 
         async function guardCoachAccess() {
             try {
-                const response = await fetch(`${API_BASE}/auth/me`, {
+                const response = await fetch(`${API_BASE}/me`, {
                     method: 'GET',
                     credentials: 'include'
                 });
