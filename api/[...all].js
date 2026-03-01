@@ -1,4 +1,4 @@
-niakconst backendOriginRaw = process.env.BACKEND_ORIGIN || process.env.BACKEND_URL || 'https://osk-kamenna-poruba-back.vercel.app';
+const backendOriginRaw = process.env.BACKEND_ORIGIN || process.env.BACKEND_URL || 'https://osk-kamenna-poruba-back.vercel.app';
 const BACKEND_ORIGIN = String(backendOriginRaw).replace(/\/+$/, '');
 
 function buildTargetUrl(req) {
