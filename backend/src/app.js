@@ -70,7 +70,7 @@ app.use(express.json({ limit: '1mb' }));
 app.use(csrf({ cookie: true }));
 
 app.use(
-  '/api',
+  ['/api', '/'],
   rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 200,
@@ -79,7 +79,7 @@ app.use(
   })
 );
 
-app.get('/api/csrf-token', (req, res) => {
+app.get(['/api/csrf-token', '/csrf-token'], (req, res) => {
   try {
     res.json({ csrfToken: req.csrfToken() });
   } catch (err) {
@@ -101,15 +101,23 @@ app.use((req, res, next) => {
 });
 
 // csurf middleware už zabezpečuje CSRF ochranu
-app.use('/api/health', healthRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/trainings', trainingsRoutes);
-app.use('/api/announcements', announcementsRoutes);
-app.use('/api/blog', blogRoutes);
-app.use('/api/polls', pollsRoutes);
-app.use('/api/users', usersRoutes);
-app.use('/api/players', playersRoutes);
-app.use('/api/sportsnet', sportsnetRoutes);
+app.use(['/api/health', '/health'], healthRoutes);
+app.use(['/api/auth', '/auth'], authRoutes);
+app.use(['/api/trainings', '/trainings'], trainingsRoutes);
+app.use(['/api/announcements', '/announcements'], announcementsRoutes);
+app.use(['/api/blog', '/blog'], blogRoutes);
+app.use(['/api/polls', '/polls'], pollsRoutes);
+app.use(['/api/users', '/users'], usersRoutes);
+app.use(['/api/players', '/players'], playersRoutes);
+app.use(['/api/sportsnet', '/sportsnet'], sportsnetRoutes);
+
+app.get('/', (req, res) => {
+  return res.json({
+    status: 'ok',
+    message: 'Backend API beží',
+    health: '/api/health'
+  });
+});
 
 app.use(notFoundHandler);
 app.use(errorHandler);
