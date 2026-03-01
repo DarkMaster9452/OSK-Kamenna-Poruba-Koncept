@@ -637,8 +637,16 @@ async function closeTraining(id) {
 }
 
 async function deleteTraining(id) {
-  return prisma.training.delete({
-    where: { id }
+  return prisma.$transaction(async (tx) => {
+    await tx.trainingAttendance.deleteMany({
+      where: {
+        trainingId: id
+      }
+    });
+
+    return tx.training.delete({
+      where: { id }
+    });
   });
 }
 
