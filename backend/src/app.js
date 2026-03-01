@@ -114,6 +114,8 @@ app.use('/api/health', healthRoutes);
 app.use('/health', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/auth', authRoutes);
+app.use('/api', authRoutes);
+app.use('/', authRoutes);
 app.use('/api/trainings', trainingsRoutes);
 app.use('/trainings', trainingsRoutes);
 app.use('/api/announcements', announcementsRoutes);
