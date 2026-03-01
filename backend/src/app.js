@@ -97,19 +97,7 @@ app.get('/csrf-token', (req, res) => {
   }
 });
 
-app.use((req, res, next) => {
-  if (!env.csrfProtection) return next();
-  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
-    const cookieToken = req.cookies ? req.cookies.osk_csrf : null;
-    const headerToken = req.headers['x-csrf-token'];
-    if (!cookieToken || !headerToken || cookieToken !== headerToken) {
-      return res.status(403).json({ message: 'CSRF kontrola zlyhala' });
-    }
-  }
-  return next();
-});
-
-// csurf middleware už zabezpečuje CSRF ochranu
+// csurf middleware zabezpečuje CSRF ochranu
 app.use('/api/health', healthRoutes);
 app.use('/health', healthRoutes);
 app.use('/api/auth', authRoutes);
