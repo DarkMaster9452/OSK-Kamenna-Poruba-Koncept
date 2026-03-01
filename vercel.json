@@ -1,8 +1,8 @@
 {
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/:path*",
-      "destination": "https://osk-kamenna-poruba-koncept.vercel.app/api/:path*"
+      "src": "/api/(.*)",
+      "dest": "https://osk-kamenna-poruba-koncept.vercel.app/api/$1"
     }
   ]
 }
