@@ -1,8 +1,1 @@
-{
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "https://osk-kamenna-poruba-koncept.vercel.app/api/$1"
-    }
-  ]
-}
+{}
