@@ -187,7 +187,7 @@ router.post('/', requireAuth, requireRole('coach', 'admin'), validateBody(create
   return res.status(201).json({ item });
 });
 
-router.post('/:id/vote', requireAuth, validateBody(voteSchema), async (req, res) => {
+async function handlePollVote(req, res) {
   if (req.user.role === 'coach' || req.user.role === 'admin') {
     return res.status(403).json({ message: 'Tréner/Admin nemôže hlasovať v ankete.' });
   }
@@ -219,7 +219,10 @@ router.post('/:id/vote', requireAuth, validateBody(voteSchema), async (req, res)
   });
 
   return res.status(204).send();
-});
+}
+
+router.post('/:id/vote', requireAuth, validateBody(voteSchema), handlePollVote);
+router.post('/:id/votes', requireAuth, validateBody(voteSchema), handlePollVote);
 
 router.patch('/:id/close', requireAuth, requireRole('coach', 'admin'), async (req, res) => {
   const poll = await findPollById(req.params.id);
